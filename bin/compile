@@ -1,0 +1,42 @@
+#!/bin/sh
+
+id=$1
+buildpack=$2
+
+# create a temporary compile directory
+compile_dir=$(mktemp -t compile_XXXXX)
+rm -rf $compile_dir
+mkdir -p $compile_dir
+
+# create a cache dir
+cache_dir=$(mktemp -t cache_XXXXX)
+rm -rf $cache_dir
+mkdir -p $cache_dir
+
+# fetching app
+cd $compile_dir
+curl -s $ANVIL_HOST/manifest/$id.tgz -o app.tgz
+tar xzf app.tgz
+rm app.tgz
+
+# fetch buildpack
+rm -rf .buildpack
+mkdir -p .buildpack
+cd .buildpack
+curl -s $buildpack -o- | tar xzf -
+cd ..
+
+# get buildpack name
+buildpack_name=$(.buildpack/bin/detect "$compile_dir")
+
+# abort if detect failes
+if [ $? -eq 0 ]; then
+  echo "Buildpack: ${buildpack_name}"
+else
+  echo "compile failed"
+  exit 1
+fi
+
+# compile
+cd $compile_dir
+.buildpack/bin/compile $compile_dir $cache_dir

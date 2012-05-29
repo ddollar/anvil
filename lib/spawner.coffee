@@ -35,6 +35,10 @@ class Spawner
     app = process.env.HEROKU_APP
     emitter = new events.EventEmitter()
 
+    ps_env = {}
+    ps_env["ps_env[#{key}]"] = val for key, val in env
+    console.log "ps_env", ps_env
+
     request = restler.post "https://api.heroku.com/apps/#{app}/ps",
       headers:
         "Authorization": new Buffer(":" + api_key).toString("base64")

@@ -27,8 +27,8 @@ class Manifest
       put = @knox.put "/manifest/#{id}", { "Content-Length":buffer.length, "Content-Type":"text/plain" }
       env =
         BUILDPACK_URL: "https://buildkit.herokuapp.com/buildkit/example.tgz"
-        SLUG_URL:      slug_url
-        SLUG_PUT_URL:  "https://#{process.env.ANVIL_HOST}/slugs/#{slug_id}.img"
+        SLUG_URL:      "https://#{process.env.ANVIL_HOST}/slugs/#{slug_id}.img"
+        SLUG_PUT_URL:  slug_put_url 
       put.on "response", (res) ->
         cb spawner.spawn("bin/compile \"#{id}\"", env:env)
       put.end(buffer)

@@ -36,7 +36,7 @@ class Spawner
     emitter = new events.EventEmitter()
 
     ps_env = {}
-    ps_env["ps_env[#{key}]"] = val for key, val in env
+    ps_env["ps_env[#{key}]"] = val for key, val in options.env
     console.log "ps_env", ps_env
 
     request = restler.post "https://api.heroku.com/apps/#{app}/ps",

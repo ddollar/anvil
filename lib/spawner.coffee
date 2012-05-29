@@ -11,15 +11,18 @@ class Spawner
   constructor: (env) ->
     @env = env or process.env.SPAWN_ENV or "local"
 
-  spawn: (command, options, cb) ->
+  spawn: (command, options) ->
     spawner = this["spawn_#{@env}"]
-    spawner command, options, cb
+    spawner command, options
 
-  spawn_local: (command, options, cb) ->
-    args    = command.match(/("[^"]*"|[^"]+)(\s+|$)/g)
+  spawn_local: (command, options) ->
+    args    = command.match(/('[^']*'|[^']+)(\s+|$)/g)
     command = args.shift().replace(/\s+$/g, "")
     args    = args.map (arg) -> arg.match(/"?([^"]*)"?/)[1]
-    proc    = spawn command, args, env:process.env
+    console.log "command", command
+    console.log "args", args
+    console.log "options", options
+    proc    = spawn command, args, env:(options.env || {})
     emitter = new events.EventEmitter()
 
     proc.stdout.on "data", (data) -> emitter.emit("data", data)
@@ -27,7 +30,7 @@ class Spawner
     proc.on        "exit", (code) -> emitter.emit("end", code)
     emitter
 
-  spawn_heroku: (command, cb) ->
+  spawn_heroku: (command, options) ->
     api_key = process.env.HEROKU_API_KEY
     app = process.env.HEROKU_APP
     emitter = new events.EventEmitter()
@@ -40,6 +43,7 @@ class Spawner
       data:
         attach:  true
         command: command
+        ps_env:  options.env || {}
 
     request.on "success", (data) ->
       url = require("url").parse(data.rendezvous_url)

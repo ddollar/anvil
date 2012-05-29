@@ -24,8 +24,10 @@ class Manifest
     buildpack = "https://buildkit.herokuapp.com/buildkit/example.tgz"
     @generate_put_url (err, url) =>
       put = @knox.put "/manifest/#{id}", { "Content-Length":buffer.length, "Content-Type":"text/plain" }
-      console.log "command", "bin/compile '#{id}' '#{buildpack}' '#{url}'"
-      put.on "response", (res) -> cb(spawner.spawn("bin/compile '#{id}' '#{buildpack}' '#{url}'"))
+      env = process.env
+      env["TEST"] = "foo"
+      put.on "response", (res) ->
+        cb spawner.spawn("bin/compile '#{id}' '#{buildpack}'", env:env)
       put.end(buffer)
 
   create_hash: (hash, stream, cb) ->

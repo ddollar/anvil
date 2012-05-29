@@ -1,5 +1,7 @@
 #!/bin/sh
 
+export
+
 id=$1
 buildpack=$2
 put_url=$3

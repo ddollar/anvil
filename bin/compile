@@ -57,6 +57,6 @@ slug=$(mktemp -t slug_XXXXX).img
 mksquashfs $compile_dir $slug -all-root >/dev/null
 echo "done"
 
-ls -la $slug
-
-echo "PUT: $SLUG_PUT_URL"
+echo -n "Uploading slug... "
+curl -v -T $slug "$SLUG_PUT_URL"
+echo "done"

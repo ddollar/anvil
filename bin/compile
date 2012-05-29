@@ -24,7 +24,7 @@ mkdir -p $cache_dir
 # fetching app
 echo -n "Recreating app from manifest... "
 cd $compile_dir
-curl -s $ANVIL_HOST/manifest/$id.tgz -o app.tgz
+curl $ANVIL_HOST/manifest/$id.tgz -o app.tgz
 tar xzf app.tgz
 rm app.tgz
 echo "done"

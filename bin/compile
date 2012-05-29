@@ -1,7 +1,5 @@
 #!/bin/sh
 
-export
-
 id=$1
 
 # finish the "Launching build slave..." line

@@ -48,7 +48,7 @@ class Manifest
     hmac = crypto.createHmac("sha1", process.env.AWS_SECRET)
     hmac.update string_to_sign
     digest = hmac.digest("base64")
-    url = "http://#{bucket}.s3.amazonaws.com/#{filename}?AwsAccessKeyId=#{process.env.AWS_ACCESS}&Signature=#{digest}&Expires=#{expires}"
+    url = "http://#{bucket}.s3.amazonaws.com/#{filename}?AwsAccessKeyId=#{process.env.AWS_ACCESS}&Signature=#{qs.escape(digest)}&Expires=#{expires}"
     cb null, url
 
   missing_hashes: (cb) ->

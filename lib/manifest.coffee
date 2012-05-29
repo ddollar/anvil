@@ -42,7 +42,7 @@ class Manifest
   generate_put_url: (cb) ->
     filename = "slug/#{uuid.v1()}.img"
     ttl = 3600
-    expires = (new Date).getTime() + ttl
+    expires = Math.floor((new Date).getTime() / 1000) + ttl
     bucket = process.env.AWS_BUCKET
     string_to_sign = "PUT\n\n\n#{expires}\n/#{bucket}/#{filename}"
     hmac = crypto.createHmac("sha1", process.env.AWS_SECRET)

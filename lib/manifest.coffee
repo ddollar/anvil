@@ -21,11 +21,12 @@ class Manifest
   build: (cb) ->
     id     = uuid.v1()
     buffer = new Buffer(JSON.stringify(@manifest), "binary")
-    @generate_put_url (err, slug_put_url) =>
+    @generate_put_url (err, slug_url, slug_put_url) =>
       put = @knox.put "/manifest/#{id}", { "Content-Length":buffer.length, "Content-Type":"text/plain" }
       env =
         BUILDPACK_URL: "https://buildkit.herokuapp.com/buildkit/exmple.tgz"
-        SLUG_PUT_URL: slug_put_url
+        SLUG_URL:      slug_url
+        SLUG_PUT_URL:  slug_put_url
       put.on "response", (res) ->
         cb spawner.spawn("bin/compile \"#{id}\"", env:env)
       put.end(buffer)
@@ -48,8 +49,9 @@ class Manifest
     hmac = crypto.createHmac("sha1", process.env.AWS_SECRET)
     hmac.update string_to_sign
     digest = hmac.digest("base64")
-    url = "http://#{bucket}.s3.amazonaws.com/#{filename}?AWSAccessKeyId=#{process.env.AWS_ACCESS}&Signature=#{qs.escape(digest)}&Expires=#{expires}"
-    cb null, url
+    url = "http://#{bucket}.s3.amazonaws.com/#{filename}"
+    put_url = "#{url}?AWSAccessKeyId=#{process.env.AWS_ACCESS}&Signature=#{qs.escape(digest)}&Expires=#{expires}"
+    cb null, url, put_url
 
   missing_hashes: (cb) ->
     async.parallel @datastore_testers(), (err, results) ->
@@ -71,7 +73,7 @@ class Manifest
           mkdirp path.dirname(filename), =>
             fs.open filename, "w", (err, fd) =>
               @knox.getFile "/hash/#{file_manifest["hash"]}", (err, get) =>
-                console.log "writing:#{filename}"
+                # console.log "writing:#{filename}"
                 get.setEncoding "binary"
                 get.on "data", (chunk) -> fs.write fd, chunk
                 get.on "end", ->

@@ -19,9 +19,6 @@ class Spawner
     args    = command.match(/("[^"]*"|[^"]+)(\s+|$)/g)
     command = args.shift().replace(/\s+$/g, "")
     args    = args.map (arg) -> arg.match(/"?([^"]*)"?/)[1]
-    console.log "command", command
-    console.log "args", args
-    console.log "options", options
     proc    = spawn command, args, env:(options.env || {})
     emitter = new events.EventEmitter()
 
@@ -59,7 +56,7 @@ class Spawner
           rendezvous.write url.pathname.substring(1) + "\n"
         else
           console.log "invalid socket"
-      rendezvous.on "data", (data) -> console.log "data", data; emitter.emit("data", data) unless data.toString() is "rendezvous\r\n"
+      rendezvous.on "data", (data) -> emitter.emit("data", data) unless data.toString() is "rendezvous\r\n"
       rendezvous.on "end",         -> emitter.emit "end"
 
     request.on "error", (error) ->

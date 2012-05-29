@@ -2,6 +2,9 @@
 
 id=$1
 buildpack=$2
+put_url=$3
+
+echo "put_url: $3"
 
 # finish the "Launching build slave..." line
 echo "done"

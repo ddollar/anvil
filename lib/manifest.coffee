@@ -1,8 +1,10 @@
 async   = require("async")
+crypto  = require("crypto")
 fs      = require("fs")
 knox    = require("knox")
 mkdirp  = require("mkdirp")
 path    = require("path")
+qs      = require("querystring")
 spawn   = require("child_process").spawn
 spawner = require("spawner").init()
 temp    = require("temp")
@@ -17,14 +19,14 @@ class Manifest
       bucket: process.env.AWS_BUCKET
 
   build: (cb) ->
-    id     = uuid.v1()
-    buffer = new Buffer(JSON.stringify(@manifest), "binary")
-
+    id        = uuid.v1()
+    buffer    = new Buffer(JSON.stringify(@manifest), "binary")
     buildpack = "https://buildkit.herokuapp.com/buildkit/example.tgz"
 
-    put = @knox.put "/manifest/#{id}", { "Content-Length":buffer.length, "Content-Type":"text/plain" }
-    put.on "response", (res) -> cb(spawner.spawn("bin/compile \"#{id}\" \"#{buildpack}\""))
-    put.end(buffer)
+    @generate_put_url, (err, url) =>
+      put = @knox.put "/manifest/#{id}", { "Content-Length":buffer.length, "Content-Type":"text/plain" }
+      put.on "response", (res) -> cb(spawner.spawn("bin/compile \"#{id}\" \"#{buildpack}\" \"#{url}\""))
+      put.end(buffer)
 
   create_hash: (hash, stream, cb) ->
     @knox.putStream stream, "/hash/#{hash}", (err, knox_res) ->
@@ -34,6 +36,18 @@ class Manifest
     temp.mkdir "compile", (err, path) =>
       async.parallel @datastore_fetchers(path), (err, results) ->
         cb spawn("tar", ["czf", "-", "."], cwd:path)
+
+  generate_put_url: (cb) ->
+    filename = "slug/#{uuid.v1()}.img"
+    ttl = 3600
+    expires = (new Date).getTime() + ttl
+    bucket = process.env.AWS_BUCKET
+    string_to_sign = "PUT\n\n\n#{expires}\n/#{bucket}/#{filename}"
+    hmac = crypto.createHmac("sha1", process.env.AWS_SECRET)
+    hmac.update string_to_sign
+    digest = hmac.digest("base64")
+    url = "http://#{bucket}.s3.amazonaws.com/#{filename}?AwsAccessKeyId=#{process.env.AWS_ACCESS}&Signature=#{digest}&Expires=#{expires}"
+    cb null, url
 
   missing_hashes: (cb) ->
     async.parallel @datastore_testers(), (err, results) ->

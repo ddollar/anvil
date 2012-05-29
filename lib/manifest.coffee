@@ -10,23 +10,25 @@ spawner = require("spawner").init()
 temp    = require("temp")
 uuid    = require("node-uuid")
 
+knox_instance = knox.createClient
+  key:    process.env.AWS_ACCESS
+  secret: process.env.AWS_SECRET
+  bucket: process.env.AWS_BUCKET
+
 class Manifest
 
   constructor: (@manifest) ->
-    @knox = knox.createClient
-      key:    process.env.AWS_ACCESS,
-      secret: process.env.AWS_SECRET,
-      bucket: process.env.AWS_BUCKET
+    @knox = knox_instance
 
   build: (cb) ->
     id     = uuid.v1()
     buffer = new Buffer(JSON.stringify(@manifest), "binary")
-    @generate_put_url (err, slug_url, slug_put_url) =>
+    @generate_put_url (err, slug_id, slug_put_url) =>
       put = @knox.put "/manifest/#{id}", { "Content-Length":buffer.length, "Content-Type":"text/plain" }
       env =
         BUILDPACK_URL: "https://buildkit.herokuapp.com/buildkit/example.tgz"
         SLUG_URL:      slug_url
-        SLUG_PUT_URL:  slug_put_url
+        SLUG_PUT_URL:  "https://#{process.env.ANVIL_HOST}/slugs/#{slug_id}.img"
       put.on "response", (res) ->
         cb spawner.spawn("bin/compile \"#{id}\"", env:env)
       put.end(buffer)
@@ -41,7 +43,8 @@ class Manifest
         cb spawn("tar", ["czf", "-", "."], cwd:path)
 
   generate_put_url: (cb) ->
-    filename = "slug/#{uuid.v1()}.img"
+    id = uuid.v1()
+    filename = "slug/#{id}.img"
     ttl = 3600
     expires = Math.floor((new Date).getTime() / 1000) + ttl
     bucket = process.env.AWS_BUCKET
@@ -51,7 +54,7 @@ class Manifest
     digest = hmac.digest("base64")
     url = "http://#{bucket}.s3.amazonaws.com/#{filename}"
     put_url = "#{url}?AWSAccessKeyId=#{process.env.AWS_ACCESS}&Signature=#{qs.escape(digest)}&Expires=#{expires}"
-    cb null, url, put_url
+    cb id, put_url
 
   missing_hashes: (cb) ->
     async.parallel @datastore_testers(), (err, results) ->
@@ -91,6 +94,8 @@ class Manifest
 
   hashes: (manifest) ->
     object.hash for name, object of manifest
+
+module.exports.knox = knox_instance
 
 module.exports.init = (manifest) ->
   new Manifest(manifest)

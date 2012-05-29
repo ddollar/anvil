@@ -32,4 +32,10 @@ app.get "/manifest/:id.tgz", (req, res) ->
       stream.stdout.on "data", (chunk) -> res.write(chunk)
       stream.on        "exit", (code)  -> res.end()
 
+app.get "/slugs/:id.img", (req, res) ->
+  manifest.knox.getFile "/slug/#{req.params.id}.img", (err, get) =>
+    console.log "err", err
+    get.on "data", (chunk) -> res.write chunk
+    get.on "end",          -> res.end()
+
 app.listen process.env.PORT || 5000

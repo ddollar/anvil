@@ -16,7 +16,7 @@ class Spawner
     spawner command, options
 
   spawn_local: (command, options) ->
-    args    = command.match(/('[^']*'|[^']+)(\s+|$)/g)
+    args    = command.match(/("[^"]*"|[^"]+)(\s+|$)/g)
     command = args.shift().replace(/\s+$/g, "")
     args    = args.map (arg) -> arg.match(/"?([^"]*)"?/)[1]
     console.log "command", command

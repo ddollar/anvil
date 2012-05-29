@@ -53,7 +53,7 @@ cd $compile_dir
 # make slug
 echo -n "Creating slug... "
 slug=$(mktemp -t slug_XXXXX).img
-mksquashfs $compile_dir $slug >/dev/null
+mksquashfs $compile_dir $slug -all-root >/dev/null
 echo "done"
 
 ls -la $slug

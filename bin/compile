@@ -14,17 +14,21 @@ rm -rf $cache_dir
 mkdir -p $cache_dir
 
 # fetching app
+echo -n "Recreating app from manifest... "
 cd $compile_dir
 curl -s $ANVIL_HOST/manifest/$id.tgz -o app.tgz
 tar xzf app.tgz
 rm app.tgz
+echo "done"
 
 # fetch buildpack
+echo -n "Fetching buildpack...i "
 rm -rf .buildpack
 mkdir -p .buildpack
 cd .buildpack
 curl -s $buildpack -o- | tar xzf -
 cd ..
+echo "done"
 
 # get buildpack name
 buildpack_name=$(.buildpack/bin/detect "$compile_dir")
@@ -33,18 +37,19 @@ buildpack_name=$(.buildpack/bin/detect "$compile_dir")
 if [ $? -eq 0 ]; then
   echo "Buildpack: ${buildpack_name}"
 else
-  echo "compile failed"
+  echo "Buildpack detection failed"
   exit 1
 fi
 
 # compile
-echo "compiling"
+echo "Compiling application"
 cd $compile_dir
-.buildpack/bin/compile $compile_dir $cache_dir | sed -e "s/^......//g"
+.buildpack/bin/compile $compile_dir $cache_dir | sed -e "s/^....../ /g"
 
 # make slug
-echo "creating slug"
+echo -n "Creating slug... "
 slug=$(mktemp -t slug_XXXXX).img
 mksquashfs $compile_dir $slug >/dev/null
+echo "done"
 
 ls -la $slug

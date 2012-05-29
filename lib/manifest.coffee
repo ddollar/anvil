@@ -24,7 +24,7 @@ class Manifest
     @generate_put_url (err, slug_url, slug_put_url) =>
       put = @knox.put "/manifest/#{id}", { "Content-Length":buffer.length, "Content-Type":"text/plain" }
       env =
-        BUILDPACK_URL: "https://buildkit.herokuapp.com/buildkit/exmple.tgz"
+        BUILDPACK_URL: "https://buildkit.herokuapp.com/buildkit/example.tgz"
         SLUG_URL:      slug_url
         SLUG_PUT_URL:  slug_put_url
       put.on "response", (res) ->

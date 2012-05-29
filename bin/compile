@@ -56,5 +56,6 @@ mksquashfs $compile_dir $slug -all-root >/dev/null
 echo "done"
 
 echo -n "Uploading slug... "
+ls -la $slug
 curl -v -T $slug "$SLUG_PUT_URL"
 echo "done"

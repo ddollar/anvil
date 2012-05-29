@@ -3,10 +3,6 @@
 export
 
 id=$1
-buildpack=$2
-put_url=$3
-
-echo "put_url: $3"
 
 # finish the "Launching build slave..." line
 echo "done"
@@ -24,7 +20,7 @@ mkdir -p $cache_dir
 # fetching app
 echo -n "Recreating app from manifest... "
 cd $compile_dir
-curl $ANVIL_HOST/manifest/$id.tgz -o app.tgz
+curl -s $ANVIL_HOST/manifest/$id.tgz -o app.tgz
 tar xzf app.tgz
 rm app.tgz
 echo "done"
@@ -34,7 +30,7 @@ echo -n "Fetching buildpack kit... "
 rm -rf .buildpack
 mkdir -p .buildpack
 cd .buildpack
-curl -s $buildpack -o- | tar xzf -
+curl -s $BUILDPACK_URL -o- | tar xzf -
 cd ..
 echo "done"
 
@@ -62,3 +58,5 @@ mksquashfs $compile_dir $slug -all-root >/dev/null
 echo "done"
 
 ls -la $slug
+
+echo "PUT: $SLUG_PUT_URL"

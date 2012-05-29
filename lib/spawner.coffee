@@ -36,7 +36,7 @@ class Spawner
     emitter = new events.EventEmitter()
 
     ps_env = {}
-    ps_env["ps_env[#{key}]"] = val for key, val in options.env
+    ps_env["ps_env[#{key}]"] = val for key, val of options.env
     console.log "env", options.env
     console.log "ps_env", ps_env
 

@@ -43,7 +43,6 @@ class Spawner
       data:
         attach:  true
         command: command
-        ps_env:  options.env || {}
 
     request.on "success", (data) ->
       url = require("url").parse(data.rendezvous_url)

@@ -23,8 +23,8 @@ class Manifest
     buffer    = new Buffer(JSON.stringify(@manifest), "binary")
     buildpack = "https://buildkit.herokuapp.com/buildkit/example.tgz"
     @generate_put_url (err, url) =>
-      console.log "url", url
       put = @knox.put "/manifest/#{id}", { "Content-Length":buffer.length, "Content-Type":"text/plain" }
+      console.log "command", "bin/compile '#{id}' '#{buildpack}' '#{url}'"
       put.on "response", (res) -> cb(spawner.spawn("bin/compile '#{id}' '#{buildpack}' '#{url}'"))
       put.end(buffer)
 

@@ -16,7 +16,7 @@ app.post "/file/:hash", (req, res) ->
 
 app.post "/manifest/build", (req, res) ->
   res.writeHead 200, "Content-Type":"text/plain", "Transfer-Encoding":"chunked"
-  res.write "Launching build slave\n"
+  res.write "Launching build slave... "
   console.log "manifest", req.body.manifest
   manifest.init(JSON.parse(req.body.manifest)).build (builder) ->
     builder.on "data", (data)   -> res.write(data)

@@ -3,6 +3,9 @@
 id=$1
 buildpack=$2
 
+# finish the "Launching build slave..." line
+echo "done"
+
 # create a temporary compile directory
 compile_dir=$(mktemp -t compile_XXXXX)
 rm -rf $compile_dir
@@ -22,7 +25,7 @@ rm app.tgz
 echo "done"
 
 # fetch buildpack
-echo -n "Fetching buildpack...i "
+echo -n "Fetching buildpack... "
 rm -rf .buildpack
 mkdir -p .buildpack
 cd .buildpack

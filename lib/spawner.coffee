@@ -37,6 +37,7 @@ class Spawner
 
     passhthrough = [ "ANVIL_HOST", "NODE_ENV", "NODE_PATH", "PATH" ]
 
+    data = {}
     data["ps_env[#{key}]"] = ""  for key, val of process.env
     data["ps_env[#{key}]"] = val for key, val of options.env
     data["ps_env[#{key}]"] = process.env[key] for key in passthrough

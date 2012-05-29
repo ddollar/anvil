@@ -40,3 +40,9 @@ fi
 # compile
 cd $compile_dir
 .buildpack/bin/compile $compile_dir $cache_dir
+
+# make slug
+slug=$(mktemp -t slug_XXXXX).img
+mksquashfs $compile_dir $slug
+
+ls -la $slug

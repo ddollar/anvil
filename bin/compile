@@ -38,11 +38,13 @@ else
 fi
 
 # compile
+echo "compiling"
 cd $compile_dir
-.buildpack/bin/compile $compile_dir $cache_dir
+.buildpack/bin/compile $compile_dir $cache_dir | sed -e "s/^......//g"
 
 # make slug
+echo "creating slug"
 slug=$(mktemp -t slug_XXXXX).img
-mksquashfs $compile_dir $slug
+mksquashfs $compile_dir $slug >/dev/null
 
 ls -la $slug

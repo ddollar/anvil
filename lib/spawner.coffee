@@ -35,19 +35,17 @@ class Spawner
     app = process.env.HEROKU_APP
     emitter = new events.EventEmitter()
 
-    ps_env = {}
-    ps_env["ps_env[#{key}]"] = val for key, val of options.env
-    console.log "env", options.env
-    console.log "ps_env", ps_env
+    data = {}
+    data["ps_env[#{key}]"] = val for key, val of options.env
+    data["attach"] = "true"
+    data["command"] = command
 
     request = restler.post "https://api.heroku.com/apps/#{app}/ps",
       headers:
         "Authorization": new Buffer(":" + api_key).toString("base64")
         "Accept":        "application/json"
         "User-Agent":    "heroku-gem/2.5"
-      data:
-        attach:  true
-        command: command
+      data: data
 
     request.on "success", (data) ->
       url = require("url").parse(data.rendezvous_url)

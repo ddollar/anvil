@@ -19,13 +19,13 @@ class Manifest
       bucket: process.env.AWS_BUCKET
 
   build: (cb) ->
-    id        = uuid.v1()
-    buffer    = new Buffer(JSON.stringify(@manifest), "binary")
-    buildpack = "https://buildkit.herokuapp.com/buildkit/example.tgz"
-    @generate_put_url (err, url) =>
+    id     = uuid.v1()
+    buffer = new Buffer(JSON.stringify(@manifest), "binary")
+    @generate_put_url (err, slug_put_url) =>
       put = @knox.put "/manifest/#{id}", { "Content-Length":buffer.length, "Content-Type":"text/plain" }
       env =
-        TEST: "foo"
+        BUILDPACK_URL: "https://buildkit.herokuapp.com/buildkit/exmple.tgz"
+        SLUG_PUT_URL: slug_put_url
       put.on "response", (res) ->
         cb spawner.spawn("bin/compile \"#{id}\"", env:env)
       put.end(buffer)

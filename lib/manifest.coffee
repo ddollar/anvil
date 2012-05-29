@@ -27,7 +27,7 @@ class Manifest
       env = process.env
       env["TEST"] = "foo"
       put.on "response", (res) ->
-        cb spawner.spawn("bin/compile \"#{id}\" \"#{buildpack}\"", env:env)
+        cb spawner.spawn("bin/compile \"#{id}\"", env:env)
       put.end(buffer)
 
   create_hash: (hash, stream, cb) ->

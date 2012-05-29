@@ -36,8 +36,11 @@ class Spawner
     emitter = new events.EventEmitter()
 
     data = {}
+    data["ps_env[#{key}]"] = ""  for key, val of process.env
     data["ps_env[#{key}]"] = val for key, val of options.env
-    data["ps_env[AWS_ACCESS]"] = ""
+    data["ps_env[NODE_ENV]"] = process.env.NODE_ENV
+    data["ps_env[NODE_PATH]"] = process.env.NODE_PATH
+    data["ps_env[PATH]"] = process.env.PATH
     data["attach"] = "true"
     data["command"] = command
 

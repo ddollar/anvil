@@ -26,9 +26,13 @@ class Manifest
     @generate_put_url id, (err, slug_put_url) =>
       put = @knox.put "/manifest/#{id}.json", "Content-Length":buffer.length, "Content-Type":"application/json"
       env =
+        ANVIL_HOST:    process.env.ANVIL_HOST
         BUILDPACK_URL: @buildpack_with_default(options.buildpack)
         MANIFEST_TGZ:  "#{process.env.ANVIL_HOST}/manifest/#{id}.tgz"
         MANIFEST_URL:  "#{process.env.ANVIL_HOST}/manifest/#{id}.json"
+        NODE_ENV:      process.env.NODE_ENV
+        NODE_PATH:     process.env.NODE_PATH
+        PATH:          process.env.PATH
         SLUG_URL:      "#{process.env.ANVIL_HOST}/slugs/#{id}.img"
         SLUG_PUT_URL:  slug_put_url
       put.on "response", (res) ->

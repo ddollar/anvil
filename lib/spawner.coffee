@@ -32,12 +32,9 @@ class Spawner
     app = process.env.HEROKU_APP
     emitter = new events.EventEmitter()
 
-    passthrough = [ "ANVIL_HOST", "NODE_ENV", "NODE_PATH", "PATH" ]
-
     data = {}
-    data["ps_env[#{key}]"] = ""  for key, val of process.env
-    data["ps_env[#{key}]"] = val for key, val of options.env
-    data["ps_env[#{key}]"] = process.env[key] for key in passthrough
+    data["ps_env[#{key}]"] = ""  for key, val of process.env # nullify parent env
+    data["ps_env[#{key}]"] = val for key, val of options.env # only add desired env
     data["attach"] = "true"
     data["command"] = command
 

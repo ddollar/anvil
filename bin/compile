@@ -15,15 +15,13 @@ cache_dir=$(mktemp -t cache_XXXXX)
 rm -rf $cache_dir
 mkdir -p $cache_dir
 
-# fetching manifest
-echo -n "Downloading manifest... "
-manifest=$(mktemp -t manifest_XXXXX)
-curl -s $ANVIL_HOST/manifest/$id.json -o $manifest
-echo "done"
-
 # fetching app
 echo -n "Recreating app from manifest... "
-bin/download_manifest $manifest $compile_dir >/dev/null
+# manifest=$(mktemp -t manifest_XXXXX)
+# curl -s $ANVIL_HOST/manifest/$id.json -o $manifest
+# bin/download_manifest $manifest $compile_dir >/dev/null
+cd $compile_dir
+curl -s $MANIFEST_TGZ -o- | tar -xzvf -
 echo "done"
 
 # fetch buildpack
@@ -32,6 +30,7 @@ echo -n "Fetching buildpack kit... "
 rm -rf .buildpack
 mkdir -p .buildpack
 cd .buildpack
+echo "BP:${BUILDPACK_URL}"
 curl -s $BUILDPACK_URL -o- | tar xzf -
 cd ..
 echo "done"

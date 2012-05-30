@@ -27,6 +27,7 @@ bin/download_manifest $manifest $compile_dir
 echo "done"
 
 # fetch buildpack
+cd $compile_dir
 echo -n "Fetching buildpack kit... "
 rm -rf .buildpack
 mkdir -p .buildpack
@@ -34,9 +35,6 @@ cd .buildpack
 curl -s $BUILDPACK_URL -o- | tar xzf -
 cd ..
 echo "done"
-
-cd $compile_dir
-ls -la
 
 # get buildpack name
 echo -n "Detecting buildpack... "

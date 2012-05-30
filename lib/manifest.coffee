@@ -35,6 +35,8 @@ class Manifest
         PATH:          process.env.PATH
         SLUG_URL:      "#{process.env.ANVIL_HOST}/slugs/#{id}.img"
         SLUG_PUT_URL:  slug_put_url
+      for key, val of options.env
+        env[key] = val
       put.on "response", (res) ->
         builder = spawner.spawn("bin/compile \"#{id}\"", env:env)
         cb id, builder

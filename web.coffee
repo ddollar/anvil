@@ -22,6 +22,7 @@ app.post "/file/:hash", (req, res) ->
 app.post "/manifest/build", (req, res) ->
   options =
     buildpack: req.body.buildpack
+    env:       req.body.env
   manifest.init(JSON.parse(req.body.manifest)).build options, (id, builder) ->
     res.writeHead 200
       "Content-Type":      "text/plain"

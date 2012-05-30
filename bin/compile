@@ -21,6 +21,7 @@ echo -n "Recreating app from manifest... "
 # curl -s $ANVIL_HOST/manifest/$id.json -o $manifest
 # bin/download_manifest $manifest $compile_dir >/dev/null
 cd $compile_dir
+echo "MT:${MANIFEST_TGZ}"
 curl -s $MANIFEST_TGZ -o- | tar xzf -
 ls -la
 echo "done"

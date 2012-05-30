@@ -26,7 +26,7 @@ echo "done"
 
 # fetch buildpack
 cd $compile_dir
-echo -n "Fetching buildpack kit... "
+echo -n "Fetching buildpack... "
 rm -rf .buildpack
 mkdir -p .buildpack
 cd .buildpack
@@ -47,7 +47,7 @@ else
 fi
 
 # compile
-echo "Compiling application"
+echo "Compiling application..."
 cd $compile_dir
 .buildpack/bin/compile $compile_dir $cache_dir | sed -e "s/^....../ /g"
 

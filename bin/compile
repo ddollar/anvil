@@ -4,7 +4,7 @@ id=$1
 
 # override built-in shell echo
 echo() {
-  /bin/echo "$1" "$2" "$3"
+  /bin/echo "$1" "$2"
 }
 
 # finish the "Launching build slave..." line

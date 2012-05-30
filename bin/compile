@@ -17,11 +17,11 @@ mkdir -p $cache_dir
 
 # fetching app
 echo -n "Recreating app from manifest... "
-# manifest=$(mktemp -t manifest_XXXXX)
-# curl -s $ANVIL_HOST/manifest/$id.json -o $manifest
-# bin/download_manifest $manifest $compile_dir >/dev/null
-cd $compile_dir
-curl -s $MANIFEST_TGZ -o- | tar xzf -
+manifest=$(mktemp -t manifest_XXXXX)
+curl -s $ANVIL_HOST/manifest/$id.json -o $manifest
+bin/download_manifest $manifest $compile_dir >/dev/null
+# cd $compile_dir
+# curl -s $MANIFEST_TGZ -o- | tar xzf -
 echo "done"
 
 # fetch buildpack

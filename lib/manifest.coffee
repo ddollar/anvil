@@ -34,7 +34,7 @@ class Manifest
       put.on "response", (res) ->
         builder = spawner.spawn("bin/compile \"#{id}\"", env:env)
         cb builder
-        builder.emit "data", "Launching build slave... "
+        builder.emit "data", "Launching build process... "
       put.end(buffer)
 
   create_hash: (hash, stream, cb) ->

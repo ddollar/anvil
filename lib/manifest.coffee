@@ -27,8 +27,8 @@ class Manifest
       put = @knox.put "/manifest/#{id}.json", "Content-Length":buffer.length, "Content-Type":"application/json"
       env =
         BUILDPACK_URL: "https://buildkit.herokuapp.com/buildkit/example.tgz"
-        MANIFEST_TGZ:  "#{process.env.ANVIL_HOST}/manifests/#{id}.tgz"
-        MANIFEST_URL:  "#{process.env.ANVIL_HOST}/manifests/#{id}.json"
+        MANIFEST_TGZ:  "#{process.env.ANVIL_HOST}/manifest/#{id}.tgz"
+        MANIFEST_URL:  "#{process.env.ANVIL_HOST}/manifest/#{id}.json"
         SLUG_URL:      "#{process.env.ANVIL_HOST}/slugs/#{id}.img"
         SLUG_PUT_URL:  slug_put_url
       put.on "response", (res) ->

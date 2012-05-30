@@ -34,7 +34,6 @@ app.get "/manifest/:id.tgz", (req, res) ->
 
 app.get "/slugs/:id.img", (req, res) ->
   manifest.knox.getFile "/slug/#{req.params.id}.img", (err, get) =>
-    console.log "err", err
     get.on "data", (chunk) -> res.write chunk
     get.on "end",          -> res.end()
 

@@ -77,14 +77,13 @@ class Manifest
         fetchers[file_manifest.hash] = (async_cb) =>
           filename = "#{dir}/#{name}"
           mkdirp path.dirname(filename), =>
-            fs.open filename, "w", (err, fd) =>
-              @knox.getFile "/hash/#{file_manifest["hash"]}", (err, get) =>
-                # console.log "writing:#{filename}"
-                get.setEncoding "binary"
-                get.on "data", (chunk) -> fs.write fd, chunk
-                get.on "end", ->
-                  fs.fchmod fd, file_manifest.mode
-                  fs.close fd
+            file = fs.createWriteStream filename
+            @knox.getFile "/hash/#{file_manifest["hash"]}", (err, get) =>
+              get.setEncoding "binary"
+              get.on "data", (chunk) -> file.write chunk
+              get.on "end", ->
+                file.end()
+                fs.chmod filename, file_manifest.mode, (err) ->
                   async_cb null, true
 
   datastore_testers: ->

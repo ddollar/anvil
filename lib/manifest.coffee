@@ -1,30 +1,41 @@
 async   = require("async")
+crypto  = require("crypto")
 fs      = require("fs")
 knox    = require("knox")
 mkdirp  = require("mkdirp")
 path    = require("path")
+qs      = require("querystring")
 spawn   = require("child_process").spawn
 spawner = require("spawner").init()
 temp    = require("temp")
 uuid    = require("node-uuid")
 
+knox_instance = knox.createClient
+  key:    process.env.AWS_ACCESS
+  secret: process.env.AWS_SECRET
+  bucket: process.env.AWS_BUCKET
+
 class Manifest
 
   constructor: (@manifest) ->
-    @knox = knox.createClient
-      key:    process.env.AWS_ACCESS,
-      secret: process.env.AWS_SECRET,
-      bucket: process.env.AWS_BUCKET
+    @knox = knox_instance
 
   build: (cb) ->
     id     = uuid.v1()
     buffer = new Buffer(JSON.stringify(@manifest), "binary")
-
-    buildpack = "https://buildkit.herokuapp.com/buildkit/example.tgz"
-
-    put = @knox.put "/manifest/#{id}", { "Content-Length":buffer.length, "Content-Type":"text/plain" }
-    put.on "response", (res) -> cb(spawner.spawn("bin/compile \"#{id}\" \"#{buildpack}\""))
-    put.end(buffer)
+    @generate_put_url id, (err, slug_put_url) =>
+      put = @knox.put "/manifest/#{id}.json", "Content-Length":buffer.length, "Content-Type":"application/json"
+      env =
+        BUILDPACK_URL: "https://buildkit.herokuapp.com/buildkit/example.tgz"
+        MANIFEST_TGZ:  "#{process.env.ANVIL_HOST}/manifest/#{id}.tgz"
+        MANIFEST_URL:  "#{process.env.ANVIL_HOST}/manifest/#{id}.json"
+        SLUG_URL:      "#{process.env.ANVIL_HOST}/slugs/#{id}.img"
+        SLUG_PUT_URL:  slug_put_url
+      put.on "response", (res) ->
+        builder = spawner.spawn("bin/compile \"#{id}\"", env:env)
+        cb id, builder
+        builder.emit "data", "Launching build process... "
+      put.end(buffer)
 
   create_hash: (hash, stream, cb) ->
     @knox.putStream stream, "/hash/#{hash}", (err, knox_res) ->
@@ -34,6 +45,19 @@ class Manifest
     temp.mkdir "compile", (err, path) =>
       async.parallel @datastore_fetchers(path), (err, results) ->
         cb spawn("tar", ["czf", "-", "."], cwd:path)
+
+  generate_put_url: (id, cb) ->
+    filename = "slug/#{id}.img"
+    ttl = 3600
+    expires = Math.floor((new Date).getTime() / 1000) + ttl
+    bucket = process.env.AWS_BUCKET
+    string_to_sign = "PUT\n\n\n#{expires}\n/#{bucket}/#{filename}"
+    hmac = crypto.createHmac("sha1", process.env.AWS_SECRET)
+    hmac.update string_to_sign
+    digest = hmac.digest("base64")
+    url = "http://#{bucket}.s3.amazonaws.com/#{filename}"
+    put_url = "#{url}?AWSAccessKeyId=#{process.env.AWS_ACCESS}&Signature=#{qs.escape(digest)}&Expires=#{expires}"
+    cb null, put_url
 
   missing_hashes: (cb) ->
     async.parallel @datastore_testers(), (err, results) ->
@@ -53,14 +77,13 @@ class Manifest
         fetchers[file_manifest.hash] = (async_cb) =>
           filename = "#{dir}/#{name}"
           mkdirp path.dirname(filename), =>
-            fs.open filename, "w", (err, fd) =>
-              @knox.getFile "/hash/#{file_manifest["hash"]}", (err, get) =>
-                console.log "writing:#{filename}"
-                get.setEncoding "binary"
-                get.on "data", (chunk) -> fs.write fd, chunk
-                get.on "end", ->
-                  fs.fchmod fd, file_manifest.mode
-                  fs.close fd
+            file = fs.createWriteStream filename
+            @knox.getFile "/hash/#{file_manifest["hash"]}", (err, get) =>
+              get.setEncoding "binary"
+              get.on "data", (chunk) -> file.write chunk
+              get.on "end", ->
+                file.end()
+                fs.chmod filename, file_manifest.mode, (err) ->
                   async_cb null, true
 
   datastore_testers: ->
@@ -74,6 +97,8 @@ class Manifest
   hashes: (manifest) ->
     object.hash for name, object of manifest
 
+module.exports.knox = knox_instance
+
 module.exports.init = (manifest) ->
   new Manifest(manifest)
 
@@ -85,7 +110,7 @@ module.exports.init_with_id = (id, cb) ->
     secret: process.env.AWS_SECRET,
     bucket: process.env.AWS_BUCKET
 
-  subknox.getFile "/manifest/#{id}", (err, get) =>
+  subknox.getFile "/manifest/#{id}.json", (err, get) =>
     get.setEncoding "binary"
     get.on "data", (chunk)  -> manifest += chunk
     get.on "end", (success) ->

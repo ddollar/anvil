@@ -11,15 +11,15 @@ class Spawner
   constructor: (env) ->
     @env = env or process.env.SPAWN_ENV or "local"
 
-  spawn: (command, options, cb) ->
+  spawn: (command, options) ->
     spawner = this["spawn_#{@env}"]
-    spawner command, options, cb
+    spawner command, options
 
-  spawn_local: (command, options, cb) ->
+  spawn_local: (command, options) ->
     args    = command.match(/("[^"]*"|[^"]+)(\s+|$)/g)
     command = args.shift().replace(/\s+$/g, "")
     args    = args.map (arg) -> arg.match(/"?([^"]*)"?/)[1]
-    proc    = spawn command, args, env:process.env
+    proc    = spawn command, args, env:(options.env || {})
     emitter = new events.EventEmitter()
 
     proc.stdout.on "data", (data) -> emitter.emit("data", data)
@@ -27,19 +27,26 @@ class Spawner
     proc.on        "exit", (code) -> emitter.emit("end", code)
     emitter
 
-  spawn_heroku: (command, cb) ->
+  spawn_heroku: (command, options) ->
     api_key = process.env.HEROKU_API_KEY
     app = process.env.HEROKU_APP
     emitter = new events.EventEmitter()
+
+    passthrough = [ "ANVIL_HOST", "NODE_ENV", "NODE_PATH", "PATH" ]
+
+    data = {}
+    data["ps_env[#{key}]"] = ""  for key, val of process.env
+    data["ps_env[#{key}]"] = val for key, val of options.env
+    data["ps_env[#{key}]"] = process.env[key] for key in passthrough
+    data["attach"] = "true"
+    data["command"] = command
 
     request = restler.post "https://api.heroku.com/apps/#{app}/ps",
       headers:
         "Authorization": new Buffer(":" + api_key).toString("base64")
         "Accept":        "application/json"
         "User-Agent":    "heroku-gem/2.5"
-      data:
-        attach:  true
-        command: command
+      data: data
 
     request.on "success", (data) ->
       url = require("url").parse(data.rendezvous_url)
@@ -49,7 +56,7 @@ class Spawner
           rendezvous.write url.pathname.substring(1) + "\n"
         else
           console.log "invalid socket"
-      rendezvous.on "data", (data) -> console.log "data", data; emitter.emit("data", data) unless data.toString() is "rendezvous\r\n"
+      rendezvous.on "data", (data) -> emitter.emit("data", data) unless data.toString() is "rendezvous\r\n"
       rendezvous.on "end",         -> emitter.emit "end"
 
     request.on "error", (error) ->

@@ -1,7 +1,9 @@
 #!/bin/sh
 
 id=$1
-buildpack=$2
+
+# finish the "Launching build slave..." line
+echo "done"
 
 # create a temporary compile directory
 compile_dir=$(mktemp -t compile_XXXXX)
@@ -14,29 +16,49 @@ rm -rf $cache_dir
 mkdir -p $cache_dir
 
 # fetching app
-cd $compile_dir
-curl -s $ANVIL_HOST/manifest/$id.tgz -o app.tgz
-tar xzf app.tgz
-rm app.tgz
+echo -n "Recreating app from manifest... "
+manifest=$(mktemp -t manifest_XXXXX)
+curl -s $ANVIL_HOST/manifest/$id.json -o $manifest
+bin/download_manifest $manifest $compile_dir >/dev/null
+# cd $compile_dir
+# curl -s $MANIFEST_TGZ -o- | tar xzf -
+echo "done"
 
 # fetch buildpack
+cd $compile_dir
+echo -n "Fetching buildpack kit... "
 rm -rf .buildpack
 mkdir -p .buildpack
 cd .buildpack
-curl -s $buildpack -o- | tar xzf -
+curl -s $BUILDPACK_URL -o- | tar xzf -
 cd ..
+echo "done"
 
 # get buildpack name
+echo -n "Detecting buildpack... "
 buildpack_name=$(.buildpack/bin/detect "$compile_dir")
 
 # abort if detect failes
 if [ $? -eq 0 ]; then
-  echo "Buildpack: ${buildpack_name}"
+  echo "done, ${buildpack_name}"
 else
-  echo "compile failed"
+  echo "failed"
   exit 1
 fi
 
 # compile
+echo "Compiling application"
 cd $compile_dir
-.buildpack/bin/compile $compile_dir $cache_dir
+.buildpack/bin/compile $compile_dir $cache_dir | sed -e "s/^....../ /g"
+
+# make slug
+echo -n "Creating slug... "
+slug=$(mktemp -t slug_XXXXX).img
+mksquashfs $compile_dir $slug -all-root >/dev/null
+echo "done"
+
+echo -n "Uploading slug... "
+curl -s -T $slug "$SLUG_PUT_URL"
+echo "done"
+
+echo "Success, slug is ${SLUG_URL}"

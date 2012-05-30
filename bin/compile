@@ -35,6 +35,8 @@ curl -s $BUILDPACK_URL -o- | tar xzf -
 cd ..
 echo "done"
 
+cd $compile_dir
+
 # get buildpack name
 echo -n "Detecting buildpack... "
 buildpack_name=$(.buildpack/bin/detect "$compile_dir")

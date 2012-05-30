@@ -43,7 +43,6 @@ class Manifest
   save: (cb) ->
     id     = uuid.v1()
     buffer = new Buffer(JSON.stringify(@manifest), "binary")
-
     put = @knox.put "/manifest/#{id}.json", "Content-Length":buffer.length, "Content-Type":"application/json"
     put.on "response", (res) ->
       manifest_url = "#{process.env.ANVIL_HOST}/manifest/#{id}.json"

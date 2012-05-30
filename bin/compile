@@ -32,14 +32,15 @@ echo "done"
 # fetch buildpack
 cd $compile_dir
 echo -n "Fetching buildpack... "
-rm -rf .buildpack
-mkdir -p .buildpack
-cd .buildpack
-if [ "${BUILDPACK_URL:(-4)}" == ".tgz" ]; then
-  curl -s $BUILDPACK_URL -o- | tar xzf -
-else
-  git clone --depth 1 $BUILDPACK_URL . >/dev/null 2>&1
-fi
+rm -rf .buildpack; mkdir -p .buildpack; cd .buildpack
+case $BUILDPACK_URL in
+  *.tgz)
+    curl -s $BUILDPACK_URL -o- | tar xzf -
+    ;;
+  *)
+    git clone --depth 1 $BUILDPACK_URL . >/dev/null 2>&1
+    ;;
+esac
 cd ..
 echo "done"
 

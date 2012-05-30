@@ -27,13 +27,13 @@ datastore_fetchers = (manifest, dir) ->
           fs.open filename, "w", (err, fd) =>
             options = url.parse("#{process.env.ANVIL_HOST}/file/#{file_manifest["hash"]}")
             client = if options.protocol is "https:" then https else http
-            get = client.get(options)
-            console.log "code", get.statusCode
-            get.on "data", (chunk) -> fs.write fd, chunk
-            get.on "end", ->
-              fs.fchmod fd, file_manifest.mode
-              fs.close fd
-              async_cb null, true
+            client.get options, (get) ->
+              console.log "code", get.statusCode
+              get.on "data", (chunk) -> fs.write fd, chunk
+              get.on "end", ->
+                fs.fchmod fd, file_manifest.mode
+                fs.close fd
+                async_cb null, true
 
 module.exports.execute = (args) ->
   program.parse(args)

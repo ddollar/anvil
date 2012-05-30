@@ -48,6 +48,9 @@ else
   exit 1
 fi
 
+ls -la
+cat package.json
+
 # compile
 echo "Compiling application"
 cd $compile_dir

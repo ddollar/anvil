@@ -20,8 +20,11 @@ app.post "/file/:hash", (req, res) ->
     res.send("ok")
 
 app.post "/manifest/build", (req, res) ->
-  res.writeHead 200, "Content-Type":"text/plain", "Transfer-Encoding":"chunked"
-  manifest.init(JSON.parse(req.body.manifest)).build (builder) ->
+  manifest.init(JSON.parse(req.body.manifest)).build (id, builder) ->
+    res.writeHead 200
+      "Content-Type":      "text/plain"
+      "Transfer-Encoding": "chunked"
+      "X-Slug-Url":        "#{process.env.ANVIL_HOST}/slugs/#{id}.img"
     builder.on "data", (data)   -> res.write(data)
     builder.on "end", (success) -> res.end()
 

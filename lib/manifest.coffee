@@ -33,7 +33,7 @@ class Manifest
         SLUG_PUT_URL:  slug_put_url
       put.on "response", (res) ->
         builder = spawner.spawn("bin/compile \"#{id}\"", env:env)
-        cb builder
+        cb id, builder
         builder.emit "data", "Launching build process... "
       put.end(buffer)
 

@@ -18,8 +18,7 @@ mkdir -p $cache_dir
 # fetching app
 echo -n "Recreating app from manifest... "
 manifest=$(mktemp -t manifest_XXXXX)
-cat $manifest
-curl -s $ANVIL_HOST/manifest/$id.json -o manifest
+curl -s $ANVIL_HOST/manifest/$id.json -o $manifest
 bin/download_manifest $manifest $compile_dir
 echo "done"
 

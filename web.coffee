@@ -20,7 +20,9 @@ app.post "/file/:hash", (req, res) ->
     res.send("ok")
 
 app.post "/manifest/build", (req, res) ->
-  manifest.init(JSON.parse(req.body.manifest)).build (id, builder) ->
+  options =
+    buildpack: req.body.buildpack
+  manifest.init(JSON.parse(req.body.manifest)).build options, (id, builder) ->
     res.writeHead 200
       "Content-Type":      "text/plain"
       "Transfer-Encoding": "chunked"

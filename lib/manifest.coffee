@@ -20,13 +20,13 @@ class Manifest
   constructor: (@manifest) ->
     @knox = knox_instance
 
-  build: (cb) ->
+  build: (options, cb) ->
     id     = uuid.v1()
     buffer = new Buffer(JSON.stringify(@manifest), "binary")
     @generate_put_url id, (err, slug_put_url) =>
       put = @knox.put "/manifest/#{id}.json", "Content-Length":buffer.length, "Content-Type":"application/json"
       env =
-        BUILDPACK_URL: "https://buildkit.herokuapp.com/buildkit/example.tgz"
+        BUILDPACK_URL: @buildpack_with_default(options.buildpack)
         MANIFEST_TGZ:  "#{process.env.ANVIL_HOST}/manifest/#{id}.tgz"
         MANIFEST_URL:  "#{process.env.ANVIL_HOST}/manifest/#{id}.json"
         SLUG_URL:      "#{process.env.ANVIL_HOST}/slugs/#{id}.img"
@@ -36,6 +36,9 @@ class Manifest
         cb id, builder
         builder.emit "data", "Launching build process... "
       put.end(buffer)
+
+  buildpack_with_default: (buildpack) ->
+    if (buildpack || "") is "" then "https://buildkit.herokuapp.com/buildkit/default.tgz" else buildpack
 
   create_hash: (hash, stream, cb) ->
     @knox.putStream stream, "/hash/#{hash}", (err, knox_res) ->

@@ -40,4 +40,4 @@ module.exports.execute = (args) ->
     manifest = JSON.parse(data)
     mkdirp program.args[1]
     async.parallel datastore_fetchers(manifest, program.args[1]), (err, results) ->
-      cb spawn("tar", ["czf", "-", "."], cwd:path)
+      console.log "results", results

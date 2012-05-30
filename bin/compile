@@ -21,9 +21,7 @@ echo -n "Recreating app from manifest... "
 # curl -s $ANVIL_HOST/manifest/$id.json -o $manifest
 # bin/download_manifest $manifest $compile_dir >/dev/null
 cd $compile_dir
-echo "MT:${MANIFEST_TGZ}"
 curl -s $MANIFEST_TGZ -o- | tar xzf -
-ls -la
 echo "done"
 
 # fetch buildpack
@@ -32,7 +30,6 @@ echo -n "Fetching buildpack kit... "
 rm -rf .buildpack
 mkdir -p .buildpack
 cd .buildpack
-echo "BP:${BUILDPACK_URL}"
 curl -s $BUILDPACK_URL -o- | tar xzf -
 cd ..
 echo "done"
@@ -48,9 +45,6 @@ else
   echo "failed"
   exit 1
 fi
-
-ls -la
-cat package.json
 
 # compile
 echo "Compiling application"

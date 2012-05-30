@@ -24,14 +24,14 @@ datastore_fetchers = (manifest, dir) ->
       fetchers[file_manifest.hash] = (async_cb) =>
         filename = "#{dir}/#{name}"
         mkdirp path.dirname(filename), =>
-          fs.open filename, "w", (err, fd) =>
-            options = url.parse("#{process.env.ANVIL_HOST}/file/#{file_manifest["hash"]}")
-            client = if options.protocol is "https:" then https else http
-            client.get options, (get) ->
-              get.on "data", (chunk) -> fs.write fd, chunk
-              get.on "end", ->
-                fs.fchmod fd, file_manifest.mode
-                fs.close fd
+          file = fs.createWriteStream filename
+          options = url.parse("#{process.env.ANVIL_HOST}/file/#{file_manifest["hash"]}")
+          client = if options.protocol is "https:" then https else http
+          client.get options, (get) ->
+            get.on "data", (chunk) -> file.write chunk
+            get.on "end", ->
+              file.end()
+              fs.chmod filename, file_manifest.mode, (err) ->
                 async_cb null, true
 
 module.exports.execute = (args) ->

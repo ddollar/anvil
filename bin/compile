@@ -23,7 +23,7 @@ echo "done"
 
 # fetching app
 echo -n "Recreating app from manifest... "
-bin/download_manifest $manifest $compile_dir
+bin/download_manifest $manifest $compile_dir >/dev/null
 echo "done"
 
 # fetch buildpack

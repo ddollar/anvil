@@ -24,7 +24,6 @@ class Manifest
     id     = uuid.v1()
     buffer = new Buffer(JSON.stringify(@manifest), "binary")
     @generate_put_url id, (err, slug_put_url) =>
-      put = @knox.put "/manifest/#{id}.json", "Content-Length":buffer.length, "Content-Type":"application/json"
       env =
         ANVIL_HOST:    process.env.ANVIL_HOST
         BUILDPACK_URL: @buildpack_with_default(options.buildpack)
@@ -38,6 +37,7 @@ class Manifest
         SLUG_PUT_URL:  slug_put_url
       for key, val of options.env
         env[key] = val
+      put = @knox.put "/manifest/#{id}.json", "Content-Length":buffer.length, "Content-Type":"application/json"
       put.on "response", (res) ->
         builder = spawner.spawn("bin/compile \"#{id}\"", env:env)
         cb id, builder

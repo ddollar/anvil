@@ -36,6 +36,7 @@ cd ..
 echo "done"
 
 cd $compile_dir
+ls -la
 
 # get buildpack name
 echo -n "Detecting buildpack... "

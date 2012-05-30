@@ -57,7 +57,7 @@ class Manifest
     digest = hmac.digest("base64")
     url = "http://#{bucket}.s3.amazonaws.com/#{filename}"
     put_url = "#{url}?AWSAccessKeyId=#{process.env.AWS_ACCESS}&Signature=#{qs.escape(digest)}&Expires=#{expires}"
-    cb null, id, put_url
+    cb null, put_url
 
   missing_hashes: (cb) ->
     async.parallel @datastore_testers(), (err, results) ->

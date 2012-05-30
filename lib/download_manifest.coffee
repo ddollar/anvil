@@ -1,7 +1,6 @@
 async    = require("async")
 fs       = require("fs")
 http     = require("http")
-manifest = require("./manifest")
 mkdirp   = require("mkdirp")
 os       = require("os")
 path     = require("path")

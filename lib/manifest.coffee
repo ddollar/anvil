@@ -111,7 +111,7 @@ module.exports.init_with_id = (id, cb) ->
     secret: process.env.AWS_SECRET,
     bucket: process.env.AWS_BUCKET
 
-  subknox.getFile "/manifest/#{id}", (err, get) =>
+  subknox.getFile "/manifest/#{id}.json", (err, get) =>
     get.setEncoding "binary"
     get.on "data", (chunk)  -> manifest += chunk
     get.on "end", (success) ->

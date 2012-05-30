@@ -14,10 +14,10 @@ Alternate Heroku push/deploy workflow.
 	Generating application manifest... done
 	Computing diff for upload... done, 2 files needed
 	Uploading new files... done
-	Launching build process... done  
-	Recreating app from manifest...  done  
-	Fetching buildpack...  done  
-	Detecting buildpack...  done, Buildkit+Node.js  
+	Launching build process... done
+	Recreating app from manifest...  done
+	Fetching buildpack...  done
+	Detecting buildpack...  done, Buildkit+Node.js
 	Compiling application...
 	  Compiling for Node.js
 	  ...
@@ -29,10 +29,10 @@ Alternate Heroku push/deploy workflow.
 	Generating application manifest... done
 	Computing diff for upload... done, 2 files needed
 	Uploading new files... done
-	Launching build process... done  
-	Recreating app from manifest...  done  
-	Fetching buildpack...  done  
-	Detecting buildpack...  done, Buildkit+Node.js  
+	Launching build process... done
+	Recreating app from manifest...  done
+	Fetching buildpack...  done
+	Detecting buildpack...  done, Buildkit+Node.js
 	Compiling application...
 	  Compiling for Node.js
 	  ...
@@ -50,10 +50,10 @@ Alternate Heroku push/deploy workflow.
 
 ## Advanced Usage
 
-	Usage: heroku push
-	
+	Usage: heroku push [DIR]
+
 	 deploy code
-	
+
 	 -b, --buildpack URL  # use a custom buildpack
 	 -e, --runtime-env    # use runtime environment during build
 	 -r, --release        # release the slug to an app

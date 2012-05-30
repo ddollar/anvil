@@ -43,4 +43,4 @@ Alternate Heroku push/deploy workflow.
 	$ heroku release https://anvil.herokuapp.com/slugs/00000000-0000-0000-0000-000000000000.img
 	Downloading slug... done
 	Uploading slug for release... done
-	Releasing to myapp... done, v30
+	Releasing to myapp... done, v31

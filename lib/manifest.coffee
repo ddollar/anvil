@@ -23,14 +23,17 @@ class Manifest
   build: (cb) ->
     id     = uuid.v1()
     buffer = new Buffer(JSON.stringify(@manifest), "binary")
-    @generate_put_url (err, slug_id, slug_put_url) =>
-      put = @knox.put "/manifest/#{id}", { "Content-Length":buffer.length, "Content-Type":"text/plain" }
+    @generate_put_url id, (err, slug_put_url) =>
+      put = @knox.put "/manifest/#{id}.json", "Content-Length":buffer.length, "Content-Type":"application/json"
       env =
         BUILDPACK_URL: "https://buildkit.herokuapp.com/buildkit/example.tgz"
-        SLUG_URL:      "#{process.env.ANVIL_HOST}/slugs/#{slug_id}.img"
-        SLUG_PUT_URL:  slug_put_url 
+        MANIFEST_URL:  "#{process.env.ANVIL_HOST}/manifests/#{id}.json"
+        SLUG_URL:      "#{process.env.ANVIL_HOST}/slugs/#{id}.img"
+        SLUG_PUT_URL:  slug_put_url
       put.on "response", (res) ->
-        cb spawner.spawn("bin/compile \"#{id}\"", env:env)
+        builder = spawner.spawn("bin/compile \"#{id}\"", env:env)
+        cb builder
+        builder.emit "data", "Launching build slave... "
       put.end(buffer)
 
   create_hash: (hash, stream, cb) ->
@@ -42,8 +45,7 @@ class Manifest
       async.parallel @datastore_fetchers(path), (err, results) ->
         cb spawn("tar", ["czf", "-", "."], cwd:path)
 
-  generate_put_url: (cb) ->
-    id = uuid.v1()
+  generate_put_url: (id, cb) ->
     filename = "slug/#{id}.img"
     ttl = 3600
     expires = Math.floor((new Date).getTime() / 1000) + ttl

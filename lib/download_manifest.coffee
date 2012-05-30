@@ -28,7 +28,7 @@ datastore_fetchers = (manifest, dir) ->
             options = url.parse("#{process.env.ANVIL_HOST}/file/#{file_manifest["hash"]}")
             client = if options.protocol is "https:" then https else http
             get = client.get(options)
-            get.on "data", (chunk) -> fs.write fs, chunk
+            get.on "data", (chunk) -> fs.write fd, chunk
             get.on "end", ->
               fs.fchmod fd, file_manifest.mode
               fs.close fd

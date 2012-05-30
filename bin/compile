@@ -15,10 +15,14 @@ cache_dir=$(mktemp -t cache_XXXXX)
 rm -rf $cache_dir
 mkdir -p $cache_dir
 
-# fetching app
-echo -n "Recreating app from manifest... "
+# fetching manifest
+echo -n "Downloading manifest... "
 manifest=$(mktemp -t manifest_XXXXX)
 curl -s $ANVIL_HOST/manifest/$id.json -o $manifest
+echo "done"
+
+# fetching app
+echo -n "Recreating app from manifest... "
 bin/download_manifest $manifest $compile_dir
 echo "done"
 

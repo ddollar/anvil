@@ -1,6 +1,7 @@
 async    = require("async")
 fs       = require("fs")
 http     = require("http")
+https    = require("https")
 mkdirp   = require("mkdirp")
 os       = require("os")
 path     = require("path")
@@ -24,8 +25,9 @@ datastore_fetchers = (manifest, dir) ->
         filename = "#{dir}/#{name}"
         mkdirp path.dirname(filename), =>
           fs.open filename, "w", (err, fd) =>
-            console.log "url", "#{process.env.ANVIL_HOST}/file/#{file_manifest["hash"]}"
-            get = http.get(url.parse("#{process.env.ANVIL_HOST}/file/#{file_manifest["hash"]}"))
+            options = url.parse("#{process.env.ANVIL_HOST}/file/#{file_manifest["hash"]}")
+            client = if options.protocol is "https:" then https else http
+            get = client.get(options)
             get.on "data", (chunk) -> fs.write fs, chunk
             get.on "end", ->
               fs.fchmod fd, file_manifest.mode
@@ -39,6 +41,3 @@ module.exports.execute = (args) ->
     mkdirp program.args[1]
     async.parallel datastore_fetchers(manifest, program.args[1]), (err, results) ->
       cb spawn("tar", ["czf", "-", "."], cwd:path)
-
-  console.log "args", program.args
-  # crossover.create(program).listen(program.args[0], program.env, program.port)

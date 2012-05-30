@@ -33,6 +33,7 @@ class Manifest
         NODE_ENV:      process.env.NODE_ENV
         NODE_PATH:     process.env.NODE_PATH
         PATH:          process.env.PATH
+        SLUG_ID:       id
         SLUG_URL:      "#{process.env.ANVIL_HOST}/slugs/#{id}.img"
         SLUG_PUT_URL:  slug_put_url
       for key, val of options.env

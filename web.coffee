@@ -31,6 +31,11 @@ app.post "/manifest/build", (req, res) ->
     builder.on "data", (data)   -> res.write(data)
     builder.on "end", (success) -> res.end()
 
+app.post "/manifest/create", (req, res) ->
+  manifest.init(JSON.parse(req.body.manifest)).save (id, manifest_url) ->
+    res.contentType "application/json"
+    res.send JSON.stringify({ id:id, url:manifest_url })
+
 app.post "/manifest/diff", (req, res) ->
   manifest.init(JSON.parse(req.body.manifest)).missing_hashes (hashes) ->
     res.contentType "application/json"

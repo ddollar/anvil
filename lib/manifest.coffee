@@ -21,28 +21,34 @@ class Manifest
     @knox = knox_instance
 
   build: (options, cb) ->
-    id     = uuid.v1()
-    buffer = new Buffer(JSON.stringify(@manifest), "binary")
-    @generate_put_url id, (err, slug_put_url) =>
-      env =
-        ANVIL_HOST:    process.env.ANVIL_HOST
-        BUILDPACK_URL: @buildpack_with_default(options.buildpack)
-        MANIFEST_TGZ:  "#{process.env.ANVIL_HOST}/manifest/#{id}.tgz"
-        MANIFEST_URL:  "#{process.env.ANVIL_HOST}/manifest/#{id}.json"
-        NODE_ENV:      process.env.NODE_ENV
-        NODE_PATH:     process.env.NODE_PATH
-        PATH:          process.env.PATH
-        SLUG_ID:       id
-        SLUG_URL:      "#{process.env.ANVIL_HOST}/slugs/#{id}.img"
-        SLUG_PUT_URL:  slug_put_url
-      for key, val of options.env
-        env[key] = val
-      put = @knox.put "/manifest/#{id}.json", "Content-Length":buffer.length, "Content-Type":"application/json"
-      put.on "response", (res) ->
+    @save (id, manifest_url) =>
+      @generate_put_url id, (err, slug_put_url) =>
+        env =
+          ANVIL_HOST:    process.env.ANVIL_HOST
+          BUILDPACK_URL: @buildpack_with_default(options.buildpack)
+          MANIFEST_TGZ:  "#{process.env.ANVIL_HOST}/manifest/#{id}.tgz"
+          MANIFEST_URL:  "#{process.env.ANVIL_HOST}/manifest/#{id}.json"
+          NODE_ENV:      process.env.NODE_ENV
+          NODE_PATH:     process.env.NODE_PATH
+          PATH:          process.env.PATH
+          SLUG_ID:       id
+          SLUG_URL:      "#{process.env.ANVIL_HOST}/slugs/#{id}.img"
+          SLUG_PUT_URL:  slug_put_url
+        for key, val of options.env
+          env[key] = val
         builder = spawner.spawn("bin/compile \"#{id}\"", env:env)
         cb id, builder
         builder.emit "data", "Launching build process... "
-      put.end(buffer)
+
+  save: (cb) ->
+    id     = uuid.v1()
+    buffer = new Buffer(JSON.stringify(@manifest), "binary")
+
+    put = @knox.put "/manifest/#{id}.json", "Content-Length":buffer.length, "Content-Type":"application/json"
+    put.on "response", (res) ->
+      manifest_url = "#{process.env.ANVIL_HOST}/manifest/#{id}.json"
+      cb id, manifest_url
+    put.end(buffer)
 
   buildpack_with_default: (buildpack) ->
     if (buildpack || "") is "" then "https://buildkit.herokuapp.com/buildkit/default.tgz" else buildpack

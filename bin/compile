@@ -64,7 +64,7 @@ else
 fi
 
 # compile
-echo "Compiling application..."
+echo "Compiling app..."
 cd $compile_dir
 .buildpack/bin/compile $compile_dir $cache_dir | sed -e "s/^....../ /g"
 

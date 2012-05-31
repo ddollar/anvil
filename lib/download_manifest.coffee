@@ -11,7 +11,7 @@ util     = require("util")
 
 program
   .version(require("#{__dirname}/../package.json").version)
-  .usage('[options] <slug url>')
+  .usage('[options] <manifest> <target>')
 
 datastore_fetchers = (manifest, dir) ->
   fetchers = {}

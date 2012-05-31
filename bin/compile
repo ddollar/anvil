@@ -32,16 +32,23 @@ echo "done"
 # fetch buildpack
 cd $compile_dir
 echo -n "Fetching buildpack... "
-rm -rf .buildpack; mkdir -p .buildpack; cd .buildpack
+rm -rf .buildpack; mkdir -p .buildpack;
 case $BUILDPACK_URL in
+  *.json)
+    buildpack_manifest=$(mktemp -t buildpack_manifest_XXXXX)
+    curl -s $BUILDPACK_URL -o $buildpack_manifest
+    bin/download_manifest $buildpack_manifest .buildpack
+    ;;
   *.tgz)
+    cd .buildpack
     curl -s $BUILDPACK_URL -o- | tar xzf -
+    cd ..
     ;;
   *)
-    git clone --depth 1 $BUILDPACK_URL . >/dev/null 2>&1
+    git clone --depth 1 $BUILDPACK_URL .buildpack >/dev/null 2>&1
     ;;
 esac
-cd ..
+cd $compile_dir
 echo "done"
 
 # get buildpack name

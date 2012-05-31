@@ -37,7 +37,7 @@ case $BUILDPACK_URL in
   *.json)
     buildpack_manifest=$(mktemp -t buildpack_manifest_XXXXX)
     curl -s $BUILDPACK_URL -o $buildpack_manifest
-    bin/download_manifest $buildpack_manifest .buildpack
+    bin/download_manifest $buildpack_manifest .buildpack >/dev/null 2>&1
     ;;
   *.tgz)
     cd .buildpack

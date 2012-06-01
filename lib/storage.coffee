@@ -47,6 +47,5 @@ class Storage
     put_url = "#{url}?AWSAccessKeyId=#{process.env.AWS_ACCESS}&Signature=#{qs.escape(digest)}&Expires=#{expires}"
     cb null, put_url
 
-
 module.exports.init = () ->
   new Storage()

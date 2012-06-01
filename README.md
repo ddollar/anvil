@@ -10,7 +10,7 @@ Alternate Heroku push/deploy workflow.
 
 #### Create a slug
 
-    $ heroku push -r
+    $ heroku build
     Generating app manifest... done
     Uploading new files... done, 0 files needed
     Launching build process... done
@@ -26,7 +26,7 @@ Alternate Heroku push/deploy workflow.
 
 #### Create a slug and release it
 
-    $ heroku push -r
+    $ heroku build -r
     Generating app manifest... done
     Uploading new files... done, 0 files needed
     Launching build process... done

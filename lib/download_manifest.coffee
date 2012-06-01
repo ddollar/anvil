@@ -20,15 +20,24 @@ datastore_fetchers = (manifest, dir) ->
       fetchers[file_manifest.hash] = (async_cb) =>
         filename = "#{dir}/#{name}"
         mkdirp path.dirname(filename), =>
-          file = fs.createWriteStream filename
-          options = url.parse("#{process.env.ANVIL_HOST}/file/#{file_manifest["hash"]}")
-          client = if options.protocol is "https:" then https else http
-          client.get options, (get) ->
-            get.on "data", (chunk) -> file.write chunk
-            get.on "end", ->
-              file.end()
-              fs.chmod filename, file_manifest.mode, (err) ->
-                async_cb null, true
+          fetch_url "#{process.env.ANVIL_HOST}/file/#{file_manifest["hash"]}", filename, (err) ->
+            fs.chmod filename, file_manifest.mode, (err) ->
+              async_cb null, true
+
+fetch_url = (url, filename, cb) ->
+  file    = fs.createWriteStream filename
+  options = require("url").parse(url)
+  client  = if options.protocol is "https:" then https else http
+  get     = client.request options, (res) ->
+    res.on "data",  (chunk) -> file.write chunk
+    res.on "end", ->
+      file.end()
+      cb null
+  get.on "error", (err) ->
+    console.log "error fetching #{url}: #{err}, retrying"
+    file.end()
+    fetch_url url, filename, cb
+  get.end()
 
 module.exports.execute = (args) ->
   program.parse(args)

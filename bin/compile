@@ -1,11 +1,26 @@
-#!/bin/sh
+#!/bin/bash
+
+# fail fast
+set -o errexit
+set -o pipefail
 
 id=$1
+
+chr () {
+  [ ${1} -lt 256 ] || return 1
+  printf \\$(($1/64*100+$1%64/8*10+$1%8))
+}
 
 # override built-in shell echo
 echo() {
   /bin/echo "$1" "$2"
 }
+
+on_exit() {
+  printf "\000\042\000\001\\$(printf '%03o' $?)"
+}
+
+trap on_exit EXIT
 
 # finish the "Launching build slave..." line
 echo "done"

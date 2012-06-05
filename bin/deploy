@@ -15,7 +15,7 @@ set -o errexit
 set -o pipefail
 
 echo -n "Creating build using old compiler... "
-build=$(env ANVIL_HOST=${ANVIL_PRODUCTIOn} heroku build $root -p 2>$root/log/deploy.log)
+build=$(env ANVIL_HOST=${ANVIL_PRODUCTION} heroku build $root -p 2>$root/log/deploy.log)
 heroku release $build -a anvil-staging >$root/log/deploy.log
 echo "done"
 

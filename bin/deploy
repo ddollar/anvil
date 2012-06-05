@@ -1,0 +1,34 @@
+#!/bin/bash
+
+ANVIL_PRODUCTION="https://anvil.herokuapp.com"
+ANVIL_STAGING="https://anvil-staging.herokuapp.com"
+
+# override built-in shell echo
+echo() {
+  /bin/echo "$1" "$2"
+}
+
+root=$(dirname $(dirname $0))
+
+# fail fast
+set -o errexit
+set -o pipefail
+
+echo -n "Creating build using old compiler... "
+build=$(env ANVIL_HOST=${ANVIL_PRODUCTIOn} heroku build $root -p 2>$root/log/deploy.log)
+heroku release $build -a anvil-staging >$root/log/deploy.log
+echo "done"
+
+echo -n "Creating build using new compiler that was built with old compiler... "
+build=$(env ANVIL_HOST=${ANVIL_STAGING} heroku build $root -p 2>$root/log/deploy.log)
+heroku release $build -a anvil-staging >$root/log/deploy.log
+echo "done"
+
+echo -n "Create build using new compiler that was built with new compiler... "
+build=$(env ANVIL_HOST=${ANVIL_STAGING} heroku build $root -p 2>$root/log/deploy.log)
+heroku release $build -a anvil-staging >$root/log/deploy.log
+echo "done"
+
+echo -n "Releasing new compiler to production... "
+heroku release $build -a anvil >$root/log/deploy.log
+echo "done"

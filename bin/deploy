@@ -24,7 +24,7 @@ build=$(env ANVIL_HOST=${ANVIL_STAGING} heroku build $root -p 2>$root/log/deploy
 heroku release $build -a anvil-staging >$root/log/deploy.log
 echo "done"
 
-echo -n "Create build using new compiler that was built with new compiler... "
+echo -n "Creating build using new compiler that was built with new compiler... "
 build=$(env ANVIL_HOST=${ANVIL_STAGING} heroku build $root -p 2>$root/log/deploy.log)
 heroku release $build -a anvil-staging >$root/log/deploy.log
 echo "done"

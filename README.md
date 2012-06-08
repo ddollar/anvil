@@ -83,6 +83,7 @@ Applications are described by a manifest, in JSON format:
         "mode":  100644,
         "hash":  "0000000000000000000000000000000000000000000000000000000000000000"
       }
+    }
 
 ### POST /manifest
 ##### Store a manifest

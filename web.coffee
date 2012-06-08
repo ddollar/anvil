@@ -19,6 +19,11 @@ app.post "/file/:hash", (req, res) ->
   storage.create_stream "/hash/#{req.params.hash}", fs.createReadStream(req.files.data.path), (err) ->
     res.send("ok")
 
+app.post "/manifest", (req, res) ->
+  manifest.init(JSON.parse(req.body.manifest)).save (err, id) ->
+    res.contentType "application/json"
+    res.send JSON.stringify({ id:id })
+
 app.post "/manifest/build", (req, res) ->
   options =
     buildpack: req.body.buildpack
@@ -30,11 +35,6 @@ app.post "/manifest/build", (req, res) ->
       "X-Slug-Url":        manifest.slug_url()
     build.on "data", (data)   -> res.write(data)
     build.on "end", (success) -> res.end()
-
-app.post "/manifest/create", (req, res) ->
-  manifest.init(JSON.parse(req.body.manifest)).save (id, manifest_url) ->
-    res.contentType "application/json"
-    res.send JSON.stringify({ id:id, url:manifest_url })
 
 app.post "/manifest/diff", (req, res) ->
   manifest.init(JSON.parse(req.body.manifest)).missing_hashes (hashes) ->

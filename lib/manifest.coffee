@@ -32,8 +32,8 @@ class Manifest
   save: (cb) ->
     manifest = new Buffer(JSON.stringify(@manifest), "binary")
     options  = "Content-Length":manifest.length, "Content-Type":"application/json"
-    @storage.create "/manifest/#{@id}.json", manifest, options, (err) ->
-      cb err
+    @storage.create "/manifest/#{@id}.json", manifest, options, (err) =>
+      cb err, @id
 
   missing_hashes: (cb) ->
     async.parallel @datastore_testers(), (err, results) ->

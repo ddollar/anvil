@@ -25,6 +25,9 @@ trap on_exit EXIT
 # finish the "Launching build slave..." line
 echo "done"
 
+# get root dir
+root_dir=$(pwd)
+
 # create a temporary compile directory
 compile_dir=$(mktemp -t compile_XXXXX)
 rm -rf $compile_dir
@@ -39,7 +42,7 @@ mkdir -p $cache_dir
 echo -n "Recreating app from manifest... "
 manifest=$(mktemp -t manifest_XXXXX)
 curl -s $ANVIL_HOST/manifest/$id.json -o $manifest
-bin/download_manifest $manifest $compile_dir >/dev/null
+$root_dir/bin/download_manifest $manifest $compile_dir >/dev/null
 echo "done"
 
 # fetch buildpack
@@ -50,7 +53,7 @@ case $BUILDPACK_URL in
   *.json)
     buildpack_manifest=$(mktemp -t buildpack_manifest_XXXXX)
     curl -s $BUILDPACK_URL -o $buildpack_manifest
-    bin/download_manifest $buildpack_manifest .buildpack >/dev/null 2>&1
+    $root_dir/bin/download_manifest $buildpack_manifest .buildpack #>/dev/null 2>&1
     ;;
   *.tgz)
     cd .buildpack

@@ -1,0 +1,15 @@
+#!/bin/bash
+
+echo() {
+  /bin/echo $*
+}
+
+manifest_url=$1
+
+manifest=$(mktemp -t manifest_XXXXX)
+root=$(dirname $(dirname $0))
+
+echo -n "Recreating app from manifest... "
+curl -s $manifest_url -o $manifest
+$root/bin/download_manifest $manifest /app/work 2>&1 >/dev/null
+echo "done"

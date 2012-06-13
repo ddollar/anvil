@@ -9,7 +9,7 @@ class Manifest
     @id      = uuid.v1()
 
   hashes: ->
-    object.hash for name, object of @manifest
+    object.hash for name, object of @manifest when object.hash
 
   build: (options, cb) ->
     @save (err) =>

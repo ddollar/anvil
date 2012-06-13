@@ -8,7 +8,7 @@ class Storage
     @knox = knox.createClient
       key:    process.env.AWS_ACCESS
       secret: process.env.AWS_SECRET
-      bucket: process.env.AWS_BUCKET
+      bucket: process.env.S3_BUCKET
 
   get: (filename, cb) ->
     @knox.getFile filename, (err, get) ->
@@ -38,7 +38,7 @@ class Storage
   generate_put_url: (filename, cb) ->
     ttl = 3600
     expires = Math.floor((new Date).getTime() / 1000) + ttl
-    bucket = process.env.AWS_BUCKET
+    bucket = process.env.S3_BUCKET
     string_to_sign = "PUT\n\n\n#{expires}\n/#{bucket}/#{filename}"
     hmac = crypto.createHmac("sha1", process.env.AWS_SECRET)
     hmac.update string_to_sign

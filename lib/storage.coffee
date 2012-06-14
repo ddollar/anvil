@@ -1,6 +1,7 @@
 crypto = require("crypto")
 knox   = require("knox")
 qs     = require("querystring")
+uuid   = require("node-uuid")
 
 class Storage
 
@@ -46,6 +47,10 @@ class Storage
     url = "http://#{bucket}.s3.amazonaws.com/#{filename}"
     put_url = "#{url}?AWSAccessKeyId=#{process.env.AWS_ACCESS}&Signature=#{qs.escape(digest)}&Expires=#{expires}"
     cb null, put_url
+
+  create_cache: ->
+    id = uuid.v1()
+    url = "#{process.env.ANVIL_HOST}/cache/#{id}.tgz"
 
 module.exports.init = () ->
   new Storage()

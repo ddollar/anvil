@@ -10,8 +10,17 @@ app = express.createServer(
   express.cookieParser(),
   express.bodyParser())
 
+app.get "/cache/:id.tgz", (req, res) ->
+  storage.get "/cache/#{req.params.id}.tgz", (err, get) ->
+    get.on "data", (chunk) -> res.write chunk
+    get.on "end",          -> res.end()
+
+app.put "/cache/:id.tgz", (req, res) ->
+  storage.create_stream "/cache/#{req.params.id}.tgz", fs.createReadStream(req.files.data.path), (err) ->
+    res.send("ok")
+
 app.get "/file/:hash", (req, res) ->
-  storage.get "/hash/#{req.params.hash}", (err, get) =>
+  storage.get "/hash/#{req.params.hash}", (err, get) ->
     get.on "data", (chunk) -> res.write chunk
     get.on "end",          -> res.end()
 
@@ -27,11 +36,13 @@ app.post "/manifest", (req, res) ->
 app.post "/manifest/build", (req, res) ->
   options =
     buildpack: req.body.buildpack
+    cache:     req.body.cache
     env:       req.body.env
   manifest.init(JSON.parse(req.body.manifest)).build options, (build, manifest) ->
     res.writeHead 200
       "Content-Type":      "text/plain"
       "Transfer-Encoding": "chunked"
+      "X-Cache-Url":       manifest.cache_url
       "X-Slug-Url":        manifest.slug_url()
     build.on "data", (data)   -> res.write(data)
     build.on "end", (success) -> res.end()

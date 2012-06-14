@@ -79,10 +79,26 @@ else
   exit 1
 fi
 
+# fetch cache
+echo -n "Fetching cache... "
+cache=$(mktemp -t cache_XXXXX)
+curl -s $CACHE_URL -o $cache
+cd $cache_dir
+tar xzf $cache >/dev/null 2>&1 && echo "done" || echo "empty"
+cd .
+
 # compile
 echo "Compiling app..."
 cd $compile_dir
 .buildpack/bin/compile $compile_dir $cache_dir | sed -e "s/^....../ /g"
+
+# put cache
+echo -n "Putting cache... "
+cd $cache_dir
+tar czf $cache . >/dev/null 2>&1
+cd .
+curl -s -X PUT $CACHE_URL -F data=@$cache >/dev/null
+echo "done"
 
 # make slug
 echo -n "Creating slug... "

@@ -17,6 +17,7 @@ class Manifest
         env =
           ANVIL_HOST:    process.env.ANVIL_HOST
           BUILDPACK_URL: @buildpack_with_default(options.buildpack)
+          CACHE_URL:     @cache_with_default(options.cache)
           MANIFEST_URL:  @manifest_url()
           NODE_ENV:      process.env.NODE_ENV
           NODE_PATH:     process.env.NODE_PATH
@@ -56,6 +57,11 @@ class Manifest
 
   buildpack_with_default: (buildpack) ->
     if (buildpack || "") is "" then "https://buildkit.herokuapp.com/buildkit/default.tgz" else buildpack
+
+  cache_with_default: (cache) ->
+    @cache_url = cache
+    if (cache || "") is "" then @cache_url = @storage.create_cache()
+    @cache_url
 
   manifest_url: ->
     "#{process.env.ANVIL_HOST}/manifest/#{@id}.json"

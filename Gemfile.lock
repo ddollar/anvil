@@ -1,6 +1,6 @@
 GIT
   remote: http://github.com/ddollar/distributor.git
-  revision: 51ddcfa99e2780cfda73d4fb8fb116143455833b
+  revision: e7d4b7633d492905774913e05074cca3b3d4616e
   specs:
     distributor (0.1.2)
       thor (>= 0.13.6)

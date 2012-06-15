@@ -90,7 +90,22 @@ cd .
 # compile
 echo "Compiling app..."
 cd $compile_dir
+
+# pre-compile hook
+if [ -f bin/pre_compile ]; then
+    echo "Running pre-compile hook..."
+    chmod +x bin/pre_compile
+    bin/pre_compile
+fi
+
 .buildpack/bin/compile $compile_dir $cache_dir | sed -e "s/^....../ /g"
+
+# post-compile hook
+if [ -f bin/post_compile ]; then
+    echo "Running post-compile hook..."
+    chmod +x bin/post_compile
+    bin/post_compile
+fi
 
 # put cache
 echo -n "Putting cache... "

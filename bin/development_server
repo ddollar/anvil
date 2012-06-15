@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+
+require "distributor/server"
+
+`stty -echo raw`
+
+server = Distributor::Server.new($stdin.dup, $stdout.dup)
+$stdout.reopen($stderr)
+server.start

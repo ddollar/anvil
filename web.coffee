@@ -21,6 +21,7 @@ app.put "/cache/:id.tgz", (req, res) ->
 
 app.get "/file/:hash", (req, res) ->
   storage.get "/hash/#{req.params.hash}", (err, get) ->
+    res.setHeader "Content-Length", get.headers["content-length"]
     get.on "data", (chunk) -> res.write chunk
     get.on "end",          -> res.end()
 

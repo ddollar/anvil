@@ -8,7 +8,7 @@ GIT
 GEM
   remote: http://rubygems.org/
   specs:
-    foreman (0.48.0.pre1)
+    foreman (0.48.0.pre2)
       thor (>= 0.13.6)
     thor (0.15.2)
 
@@ -17,4 +17,4 @@ PLATFORMS
 
 DEPENDENCIES
   distributor!
-  foreman (= 0.48.0.pre1)
+  foreman (= 0.48.0.pre2)

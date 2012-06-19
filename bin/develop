@@ -9,9 +9,17 @@ manifest_url=$1
 manifest=$(mktemp -t manifest_XXXXX)
 root=$(dirname $(dirname $0))
 
+logfifo=$(mktemp -t logfifo_XXXXX)
+rm -f $logfifo
+mkfifo $logfifo
+
+if [ "$HEROKU_LOG_TOKEN" != "" ]; then
+  cat $logfifo | logger -t $HEROKU_LOG_TOKEN &
+fi
+
 # recreating app
 curl -s $manifest_url -o $manifest 2>&1 >/dev/null
 $root/bin/download_manifest $manifest /app/work 2>&1 >/dev/null
 
 # start development server
-bundle exec $root/bin/development_server
+bundle exec $root/bin/development_server 2>$logfifo

@@ -1,20 +1,15 @@
-GIT
-  remote: http://github.com/ddollar/distributor.git
-  revision: e23f675dbacca57b6a2f1ffd0ca5220b99abddc1
-  specs:
-    distributor (0.4.2)
-      thor (>= 0.13.6)
-
 GEM
   remote: http://rubygems.org/
   specs:
+    distributor (0.4.3)
+      thor (>= 0.13.6)
     foreman (0.48.0.pre2)
       thor (>= 0.13.6)
-    thor (0.15.2)
+    thor (0.15.3)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
-  distributor!
+  distributor
   foreman (= 0.48.0.pre2)

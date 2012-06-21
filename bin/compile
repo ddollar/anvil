@@ -17,6 +17,7 @@ echo() {
 }
 
 on_exit() {
+  sleep 1
   printf "\000\042\000\001\\$(printf '%03o' $?)"
 }
 
@@ -98,7 +99,7 @@ if [ -f bin/pre_compile ]; then
     bin/pre_compile
 fi
 
-.buildpack/bin/compile $compile_dir $cache_dir | sed -e "s/^....../ /g"
+.buildpack/bin/compile $compile_dir $cache_dir | sed -le "s/^....../ /g"
 
 # post-compile hook
 if [ -f bin/post_compile ]; then

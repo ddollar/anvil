@@ -26,7 +26,7 @@ class Manifest
           SLUG_URL:      @slug_url()
           SLUG_PUT_URL:  slug_put_url
         env[key] = val for key, val of options.env
-        builder  = spawner.spawn("bin/compile \"#{@id}\"", env:env)
+        builder  = spawner.spawn("bin/compile $(bin/fetch \"#{@id}\")", env:env)
         cb builder, this
         builder.emit "data", "Launching build process... "
 

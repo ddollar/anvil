@@ -4,7 +4,7 @@
 set -o errexit
 set -o pipefail
 
-id=$1
+compile_dir=$1
 
 chr () {
   [ ${1} -lt 256 ] || return 1
@@ -29,22 +29,10 @@ echo "done"
 # get root dir
 root_dir=$(pwd)
 
-# create a temporary compile directory
-compile_dir=$(mktemp -t compile_XXXXX)
-rm -rf $compile_dir
-mkdir -p $compile_dir
-
 # create a cache dir
 cache_dir=$(mktemp -t cache_XXXXX)
 rm -rf $cache_dir
 mkdir -p $cache_dir
-
-# fetching app
-echo -n "Recreating app from manifest... "
-manifest=$(mktemp -t manifest_XXXXX)
-curl -s $ANVIL_HOST/manifest/$id.json -o $manifest
-$root_dir/bin/download_manifest $manifest $compile_dir >/dev/null
-echo "done"
 
 # fetch buildpack
 cd $compile_dir
@@ -81,12 +69,14 @@ else
 fi
 
 # fetch cache
-echo -n "Fetching cache... "
-cache=$(mktemp -t cache_XXXXX)
-curl -s $CACHE_URL -o $cache
-cd $cache_dir
-tar xzf $cache >/dev/null 2>&1 && echo "done" || echo "empty"
-cd .
+if [ "$CACHE_URL" != "" ]; then
+  echo -n "Fetching cache... "
+  cache=$(mktemp -t cache_XXXXX)
+  curl -s $CACHE_URL -o $cache
+  cd $cache_dir
+  tar xzf $cache >/dev/null 2>&1 && echo "done" || echo "empty"
+  cd .
+fi
 
 # compile
 echo "Compiling app..."
@@ -99,7 +89,9 @@ if [ -f bin/pre_compile ]; then
     bin/pre_compile
 fi
 
-.buildpack/bin/compile $compile_dir $cache_dir | sed -le "s/^....../ /g"
+.buildpack/bin/compile $compile_dir $cache_dir 2>&1 | \
+  sed -le 's/^.\!...../       ERROR: /g' | \
+  sed -le "s/^....../ /g"
 
 # post-compile hook
 if [ -f bin/post_compile ]; then
@@ -109,21 +101,27 @@ if [ -f bin/post_compile ]; then
 fi
 
 # put cache
-echo -n "Putting cache... "
-cd $cache_dir
-tar czf $cache . >/dev/null 2>&1
-cd .
-curl -s -X PUT $CACHE_URL -F data=@$cache >/dev/null
-echo "done"
+if [ "$CACHE_URL" != "" ]; then
+  echo -n "Putting cache... "
+  cd $cache_dir
+  tar czf $cache . >/dev/null 2>&1
+  cd .
+  curl -s -X PUT $CACHE_URL -F data=@$cache >/dev/null
+  echo "done"
+fi
 
 # make slug
-echo -n "Creating slug... "
-slug=$(mktemp -t slug_XXXXX).img
-mksquashfs $compile_dir $slug -all-root >/dev/null
-echo "done"
+if [ "$SLUG_PUT_URL" != "" ]; then
+  echo -n "Creating slug... "
+  slug=$(mktemp -t slug_XXXXX).img
+  mksquashfs $compile_dir $slug -all-root >/dev/null
+  echo "done"
 
-echo -n "Uploading slug... "
-curl -s -T $slug "$SLUG_PUT_URL"
-echo "done"
+  echo -n "Uploading slug... "
+  curl -s -T $slug "$SLUG_PUT_URL"
+  echo "done"
 
-echo "Success, slug is ${SLUG_URL}"
+  echo "Success, slug is ${SLUG_URL}"
+else
+  echo "Success"
+fi

@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# fail fast
+set -o errexit
+set -o pipefail
+
+id=$1
+
+# override built-in shell echo
+echo() {
+  /bin/echo "$1" "$2"
+}
+
+# get root dir
+root_dir=$(pwd)
+
+# create a temporary compile directory
+compile_dir=$(mktemp -t compile_XXXXX)
+rm -rf $compile_dir
+mkdir -p $compile_dir
+
+# fetching app
+manifest=$(mktemp -t manifest_XXXXX)
+curl -s $ANVIL_HOST/manifest/$id.json -o $manifest
+$root_dir/bin/download_manifest $manifest $compile_dir >/dev/null
+
+echo $compile_dir

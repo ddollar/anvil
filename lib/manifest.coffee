@@ -56,7 +56,7 @@ class Manifest
     ,{}
 
   buildpack_with_default: (buildpack) ->
-    if (buildpack || "") is "" then "https://buildkit.herokuapp.com/buildkit/default.tgz" else buildpack
+    if (buildpack || "") is "" then "https://buildkits.herokuapp.com/buildkit/default.tgz" else buildpack
 
   cache_with_default: (cache) ->
     @cache_url = cache

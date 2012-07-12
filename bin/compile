@@ -87,8 +87,10 @@ cd $compile_dir
   sed -le "s/^....../ /g"
 
 # write .profile to the top of any existing .profile
+echo -n "Writing .profile... "
 cat $root_dir/bin/.profile $compile_dir/.profile >$compile_dir/.profile.combined 2>/dev/null
 mv $compile_dir/.profile.combined $compile_dir/.profile
+echo "done"
 
 # put cache
 if [ "$CACHE_URL" != "" ]; then

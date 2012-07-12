@@ -86,6 +86,9 @@ cd $compile_dir
   sed -le 's/^.\!...../       ERROR: /g' | \
   sed -le "s/^....../ /g"
 
+# write .profile to the top of any existing .profile
+cat $root_dir/bin/.profile $compile_dir/.profile >$compile_dir/.profile.combined 2>/dev/null
+mv $compile_dir/.profile.combined $compile_dir/.profile
 
 # put cache
 if [ "$CACHE_URL" != "" ]; then

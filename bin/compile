@@ -94,6 +94,7 @@ if [ -f $compile_dir/.profile ]; then
   cat $compile_dir/.profile >> $profile
 fi
 mv $profile $compile_dir/.profile
+chmod +x $compile_dir/.profile
 echo "done"
 
 # put cache

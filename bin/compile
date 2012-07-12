@@ -88,8 +88,12 @@ cd $compile_dir
 
 # write .profile to the top of any existing .profile
 echo -n "Writing .profile... "
-cat $root_dir/bin/.profile $compile_dir/.profile >$compile_dir/.profile.combined 2>/dev/null
-mv $compile_dir/.profile.combined $compile_dir/.profile
+profile=$(mktemp -t profile_XXXXX)
+cat $root_dir/bin/.profile > $profile
+if [ -f $compile_dir/.profile ]; then
+  cat $compile_dir/.profile >> $profile
+fi
+mv $profile $compile_dir/.profile
 echo "done"
 
 # put cache

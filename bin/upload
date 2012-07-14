@@ -1,0 +1,44 @@
+#!/bin/bash
+#
+#/ Usage: upload <slug_url>
+#/
+#/  upload the slug_url to s3 as permanent storage
+
+# fail fast
+set -o errexit
+set -o pipefail
+
+echo() {
+  /bin/echo $*
+}
+
+error() {
+  /bin/echo $*; exit 1
+}
+
+check_env() {
+  [[ ${!1} ]] || error "Environment variable ${1} is not set."
+}
+
+usage() {
+  cat $0 | grep '^#/' | cut -c4-
+}
+
+while getopts "h" opt; do
+  case $opt in
+    h) usage; exit 0 ;;
+    ?) usage; exit 0 ;;
+  esac
+done
+
+check_env AWS_ACCESS
+check_env AWS_SECRET
+check_env S3_BUCKET
+
+root=$(dirname $(dirname $0))
+
+echo -n "Uploading ${slug_url} to S3... "
+downloaded=$(mktemp -t build_XXXXX)
+curl -s $slug_url -o $downloaded
+$root/bin/s3 put $downloaded /software/production/anvil.img >/dev/null 2>&1
+echo "done"

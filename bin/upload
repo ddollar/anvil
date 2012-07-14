@@ -24,6 +24,12 @@ usage() {
   cat $0 | grep '^#/' | cut -c4-
 }
 
+check_env AWS_ACCESS
+check_env AWS_SECRET
+check_env S3_BUCKET
+
+root=$(dirname $(dirname $0))
+
 while getopts "h" opt; do
   case $opt in
     h) usage; exit 0 ;;
@@ -31,11 +37,13 @@ while getopts "h" opt; do
   esac
 done
 
-check_env AWS_ACCESS
-check_env AWS_SECRET
-check_env S3_BUCKET
+shift $((OPTIND-1))
 
-root=$(dirname $(dirname $0))
+slug_url=$1
+
+if [ "$slug_url" == "" ]; then
+  error "Must specify a slug url."
+fi
 
 echo -n "Uploading ${slug_url} to S3... "
 downloaded=$(mktemp -t build_XXXXX)

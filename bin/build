@@ -27,6 +27,8 @@ usage() {
   cat $0 | grep '^#/' | cut -c4-
 }
 
+root=$(dirname $(dirname $0))
+
 while getopts "h" opt; do
   case $opt in
     h) usage; exit 0 ;;
@@ -34,11 +36,13 @@ while getopts "h" opt; do
   esac
 done
 
-root=$(dirname $(dirname $0))
+shift $((OPTIND-1))
+
 build_environment=$1
 
 if [ "$build_environment" == "" ]; then
   error "Must specify a build environment."
 fi
 
+echo "Building using ${build_environment} anvil..." >&2
 env ANVIL_HOST="https://anvil-${build_environment}.herokuapp.com" heroku build $root -p

@@ -3,9 +3,8 @@
 #/ Usage: release <environment> <slug_url>
 #/
 #/   release <slug_url> to anvil-<environment>
-#/   use - for <slug_url> to read from stdin
-#/
-#/   release id will be output to stdout
+#/   will attempt to read <slug_url> from stdin if not present
+#/   on the command line
 
 
 # fail fast
@@ -31,6 +30,8 @@ while getopts "h" opt; do
   esac
 done
 
+shift $((OPTIND-1))
+
 environment=$1
 slug_url=$2
 
@@ -38,7 +39,7 @@ if [ "$environment" == "" ]; then
   error "Must specify a release environment."
 fi
 
-if [ "$slug_url" == "-" ]; then
+if [ "$slug_url" == "" ]; then
   read slug_url
 fi
 

@@ -1,0 +1,73 @@
+#!/bin/bash
+#
+#/ Usage: deploy [-s] [-b <build_environment>] <release_environment>
+#/
+#/   compile anvil using anvil-<build_environment> and release
+#/   it to anvil-<release_environment>
+#/
+#/   <build_environment> will default to "production"
+#/
+#/   -s: triple compile to bootstrap compiler changes
+
+
+# fail fast
+set -o errexit
+set -o pipefail
+
+echo() {
+  /bin/echo $*
+}
+
+error() {
+  /bin/echo $*; exit 1
+}
+
+check_env() {
+  [[ ${!1} ]] || error "Environment variable ${1} is not set."
+}
+
+usage() {
+  cat $0 | grep '^#/' | cut -c4-
+}
+
+check_env AWS_ACCESS
+check_env AWS_SECRET
+check_env S3_BUCKET
+
+root=$(dirname $(dirname $0))
+bootstrap=""
+build_environment="production"
+
+while getopts "hsb:" opt; do
+  case $opt in
+    h) usage; exit 0 ;;
+    s) bootstrap="1" ;;
+    b) build_environment="$OPTARG" ;;
+    ?) usage; exit 0 ;;
+  esac
+done
+
+shift $((OPTIND-1))
+
+release_environment="$1"
+
+if [ "$build_environment" == "" ]; then
+  error "Must specify a build environment."
+fi
+
+if [ "$release_environment" == "" ]; then
+  error "Must specify a release environment."
+fi
+ 
+slug_url=$(bin/build $build_environment)
+bin/release $release_environment $slug_url
+
+if [ "$bootstrap" == "1" ]; then
+  slug_url=$(bin/build $build_environment)
+  bin/release $release_environment $slug_url
+
+  slug_url=$(bin/build $build_environment)
+  bin/release $release_environment $slug_url
+fi
+
+bin/upload $slug_url

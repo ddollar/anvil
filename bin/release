@@ -46,6 +46,6 @@ if [ "$slug_url" == "" ]; then
   error "Must specify a slug url."
 fi
 
-echo -n "Releasing ${slug_url} to anvil-${environment}..."
-heroku release $slug_url -a anvil-$environment >&2
+echo -n "Releasing ${slug_url} to anvil-${environment}... "
+heroku release $slug_url -a anvil-$environment >/dev/null
 echo "done"

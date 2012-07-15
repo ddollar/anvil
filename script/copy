@@ -51,7 +51,7 @@ if [ "$to" == "" ]; then
   echo "Must speicyf the 'to' environment."
 fi
 
-slug_url="https://anvil-datastore.s3.amazonaws.com/software/$from/anvil.img"
+slug_url="https://anvil-datastore.s3.amazonaws.com/software/anvil-$from.img"
 
-bin/release $to $slug_url
-bin/upload $slug_url $to
+script/release $to $slug_url
+script/upload $slug_url $to

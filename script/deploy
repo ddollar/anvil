@@ -35,9 +35,9 @@ usage() {
 
 build() {
   if [ "$git" == "1" ]; then
-    $root/bin/build -g $1
+    $root/script/build -g $1
   else
-    $root/bin/build $1
+    $root/script/build $1
   fi
 }
 
@@ -73,14 +73,14 @@ if [ "$release_environment" == "" ]; then
 fi
 
 slug_url=$(build $build_environment)
-bin/release $release_environment $slug_url
+script/release $release_environment $slug_url
 
 if [ "$testrun" == "1" ]; then
   slug_url=$(build $release_environment)
-  bin/release $release_environment $slug_url
+  script/release $release_environment $slug_url
 
   slug_url=$(build $release_environment)
-  bin/release $release_environment $slug_url
+  script/release $release_environment $slug_url
 fi
 
-bin/upload $slug_url $release_environment
+script/upload $slug_url $release_environment

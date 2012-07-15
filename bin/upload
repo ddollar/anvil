@@ -46,8 +46,12 @@ if [ "$slug_url" == "" ]; then
   error "Must specify a slug url."
 fi
 
-echo -n "Uploading ${slug_url} to S3... "
+if [ "$environment" == "" ]; then
+  error "Must specify an environment."
+fi
+
+echo -n "Uploading ${slug_url} to S3 as ${environment}... "
 downloaded=$(mktemp -t build_XXXXX)
 curl -s $slug_url -o $downloaded
-$root/bin/s3 put $downloaded /software/$environment/anvil.img >/dev/null 2>&1
+$root/bin/s3 put $downloaded /software/anvil-$environment.img >/dev/null 2>&1
 echo "done"

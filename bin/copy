@@ -1,0 +1,57 @@
+#!/bin/bash
+#
+#/ Usage: copy <from> <to>
+#/
+#/   copy the slug from anvil-<from> to anvil-<to>
+
+
+# fail fast
+set -o errexit
+set -o pipefail
+
+echo() {
+  /bin/echo $*
+}
+
+error() {
+  /bin/echo $*; exit 1
+}
+
+check_env() {
+  [[ ${!1} ]] || error "Environment variable ${1} is not set."
+}
+
+usage() {
+  cat $0 | grep '^#/' | cut -c4-
+}
+
+check_env AWS_ACCESS
+check_env AWS_SECRET
+check_env S3_BUCKET
+
+root=$(dirname $(dirname $0))
+
+while getopts "h" opt; do
+  case $opt in
+    h) usage; exit 0 ;;
+    ?) usage; exit 0 ;;
+  esac
+done
+
+shift $((OPTIND-1))
+
+from="$1"
+to="$2"
+
+if [ "$from" == "" ]; then
+  echo "Must specify the 'from' environment."
+fi
+
+if [ "$to" == "" ]; then
+  echo "Must speicyf the 'to' environment."
+fi
+
+slug_url="https://anvil-datastore.s3.amazonaws.com/software/$from/anvil.img"
+
+bin/release $to $slug_url
+bin/upload $slug_url $to

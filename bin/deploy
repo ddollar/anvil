@@ -83,4 +83,4 @@ if [ "$testrun" == "1" ]; then
   bin/release $release_environment $slug_url
 fi
 
-bin/upload $slug_url
+bin/upload $slug_url $release_environment

@@ -1,5 +1,4 @@
 async   = require("async")
-spawner = require("spawner").init()
 uuid    = require("node-uuid")
 
 class Manifest
@@ -14,7 +13,7 @@ class Manifest
 
   build: (options, cb) =>
     @save (err) =>
-      @builder.build(@manifest_url(), options, cb)
+      @builder.build @manifest_url(), options, cb
 
   save: (cb) ->
     manifest = new Buffer(JSON.stringify(@manifest), "binary")

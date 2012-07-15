@@ -11,6 +11,10 @@ echo() {
   /bin/echo "$1" "$2"
 }
 
+error() {
+  /bin/echo $*; exit 1
+}
+
 on_exit() {
   sleep 1
   printf "\000\042\000\001\\$(printf '%03o' $?)"
@@ -18,8 +22,13 @@ on_exit() {
 
 trap on_exit EXIT
 
-# finish the "Launching build slave..." line
-echo "done"
+if [ "$compile_dir" == "" ]; then
+  error "Aborting compilation"
+fi
+
+if [ ! -d $compile_dir ]; then
+  error "Aborting compilation"
+fi
 
 # get root dir
 root_dir=$(pwd)
@@ -31,6 +40,11 @@ mkdir -p $cache_dir
 
 # fetch buildpack
 cd $compile_dir
+BUILDPACK_ANCHOR=${BUILDPACK_URL#*#}
+BUILDPACK_URL=${BUILDPACK_URL%%#*}
+if [ "$BUILDPACK_ANCHOR" == "$BUILDPACK_URL" ]; then
+  BUILDPACK_ANCHOR=""
+fi
 echo -n "Fetching buildpack... "
 rm -rf .buildpack; mkdir -p .buildpack;
 case $BUILDPACK_URL in
@@ -44,8 +58,19 @@ case $BUILDPACK_URL in
     curl -s $BUILDPACK_URL -o- | tar xzf -
     cd ..
     ;;
+  *.git)
+    git clone --recursive $BUILDPACK_URL .buildpack >/dev/null 2>&1
+    if [ "$BUILDPACK_ANCHOR" != "" ]; then
+      cd .buildpack >/dev/null 2>&1
+      git remote update >/dev/null 2>&1
+      git checkout "$BUILDPACK_ANCHOR" >/dev/null 2>&1 || \
+        error "failed, no such ref: $BUILDPACK_ANCHOR"
+      cd - >/dev/null 2>&1
+    fi
+    ;;
   *)
-    git clone --depth 1 $BUILDPACK_URL .buildpack >/dev/null 2>&1
+    echo "failed"
+    error "Unknown buildpack type: $BUILDPACK_URL"
     ;;
 esac
 cd $compile_dir

@@ -11,7 +11,7 @@ echo() {
 }
 
 error() {
-  /bin/echo $*; exit 1
+  /bin/echo $* >&2; exit 1
 }
 
 # get root dir
@@ -22,21 +22,37 @@ compile_dir=$(mktemp -t compile_XXXXX)
 rm -rf $compile_dir
 mkdir -p $compile_dir
 
+source_anchor=${1#*#}
+source_url=${1%%#*}
+if [ "$source_anchor" == "$source_url" ]; then
+  source_anchor=""
+fi
+
+echo "done" >&2
+echo -n "Fetching app... " >&2
+
 # fetching app
-case $1 in
+case $source_url in
   *.json)
     manifest=$(mktemp -t manifest_XXXXX)
-    curl -s $1 -o $manifest
+    curl -s $source_url -o $manifest
     $root_dir/bin/download_manifest $manifest $compile_dir >/dev/null
     ;;
   *.git)
-    git clone "$1" "$compile_dir" --recursive --depth 1 >/dev/null 2>/dev/null
+    git clone "$source_url" "$compile_dir" --recursive >/dev/null 2>/dev/null
+    if [ "$source_anchor" != "" ]; then
+      cd $compile_dir >/dev/null 2>&1
+      git remote update >/dev/null 2>&1
+      git checkout "$source_anchor" >/dev/null 2>&1 || \
+        error "failed, no such ref: $source_anchor"
+      cd - >/dev/null 2>&1
+    fi
     ;;
   *)
-    error "Unknown source type: $1"
+    error "failed, unknown source type: $source_url"
     ;;
 esac
 
-manifest=$(mktemp -t manifest_XXXXX)
+echo "done" >&2
 
 echo $compile_dir

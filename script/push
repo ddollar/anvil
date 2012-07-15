@@ -4,5 +4,10 @@
 set -o errexit
 set -o pipefail
 
+# deploy from github to staging in test mode
+# test mode compiles using itself three times to ensure
+# that we have a viable compiler
 foreman run script/deploy -g -t staging
+
+# copy the known working slug to production
 foreman run script/copy staging production

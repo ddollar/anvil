@@ -16,10 +16,7 @@ class Spawner
     spawner command, options
 
   spawn_local: (command, options) ->
-    args    = command.match(/("[^"]*"|[^"]+)(\s+|$)/g)
-    command = args.shift().replace(/\s+$/g, "")
-    args    = args.map (arg) -> arg.match(/"?([^"]*)"?/)[1]
-    proc    = spawn command, args, env:(options.env || {})
+    proc    = spawn "bash", ["-c", command], env:(options.env || {})
     emitter = new events.EventEmitter()
 
     proc.stdout.on "data", (data) -> emitter.emit("data", data)

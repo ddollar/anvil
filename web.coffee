@@ -63,6 +63,11 @@ app.get "/slugs/:id.img", (req, res) ->
     get.on "data", (chunk) -> res.write chunk
     get.on "end",          -> res.end()
 
+app.get "/slugs/:id.tgz", (req, res) ->
+  storage.get "/slug/#{req.params.id}.tgz", (err, get) ->
+    get.on "data", (chunk) -> res.write chunk
+    get.on "end",          -> res.end()
+
 port = process.env.PORT || 5000
 
 app.listen port, ->

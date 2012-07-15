@@ -143,8 +143,10 @@ rm -rf $compile_dir/.buildpack
 # make slug
 if [ "$SLUG_PUT_URL" != "" ]; then
   echo -n "Creating slug... "
-  slug=$(mktemp -t slug_XXXXX).img
-  mksquashfs $compile_dir $slug -all-root >/dev/null
+  slug=$(mktemp -t slug_XXXXX).tgz
+  cd $compile_dir
+  tar czf $slug .
+  cd - >/dev/null
   echo "done"
 
   echo -n "Uploading slug... "

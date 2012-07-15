@@ -8,7 +8,7 @@ class Builder
     @storage = require("storage").init()
 
   build: (source, options, cb) ->
-    @storage.generate_put_url "slug/#{@id}.img", (err, slug_put_url) =>
+    @storage.generate_put_url "slug/#{@id}.tgz", (err, slug_put_url) =>
       env =
         ANVIL_HOST:    process.env.ANVIL_HOST
         BUILDPACK_URL: @buildpack_with_default(options.buildpack)
@@ -48,7 +48,7 @@ class Builder
     @cache_url
 
   slug_url: ->
-    "#{process.env.ANVIL_HOST}/slugs/#{@id}.img"
+    "#{process.env.ANVIL_HOST}/slugs/#{@id}.tgz"
 
 module.exports.init = () ->
   new Builder()

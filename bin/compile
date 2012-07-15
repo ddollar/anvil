@@ -115,7 +115,7 @@ cd $compile_dir
 # write .profile to the top of any existing .profile
 echo -n "Writing .profile... "
 profile=$(mktemp -t profile_XXXXX)
-cat $root_dir/bin/.profile > $profile
+cat $root_dir/data/.profile > $profile
 if [ -f $compile_dir/.profile ]; then
   cat $compile_dir/.profile >> $profile
 fi

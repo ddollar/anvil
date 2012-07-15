@@ -44,17 +44,31 @@ app.post "/manifest", (req, res) ->
     res.contentType "application/json"
     res.send JSON.stringify({ id:id })
 
+app.post "/build", (req, res) ->
+  options =
+    buildpack: req.body.buildpack
+    cache:     req.body.cache
+    env:       req.body.env
+  require("builder").init().build req.body.source, options, (build, builder) ->
+    res.writeHead 200
+      "Content-Type":      "text/plain"
+      "Transfer-Encoding": "chunked"
+      "X-Cache-Url":       builder.cache_url
+      "X-Slug-Url":        builder.slug_url()
+    build.on "data", (data)   -> res.write(data)
+    build.on "end", (success) -> res.end()
+
 app.post "/manifest/build", (req, res) ->
   options =
     buildpack: req.body.buildpack
     cache:     req.body.cache
     env:       req.body.env
-  manifest.init(JSON.parse(req.body.manifest)).build options, (build, manifest) ->
+  manifest.init(JSON.parse(req.body.manifest)).build options, (build, builder) ->
     res.writeHead 200
       "Content-Type":      "text/plain"
       "Transfer-Encoding": "chunked"
-      "X-Cache-Url":       manifest.cache_url
-      "X-Slug-Url":        manifest.slug_url()
+      "X-Cache-Url":       builder.cache_url
+      "X-Slug-Url":        builder.slug_url()
     build.on "data", (data)   -> res.write(data)
     build.on "end", (success) -> res.end()
 

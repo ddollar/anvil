@@ -6,9 +6,12 @@ set -o pipefail
 
 id=$1
 
-# override built-in shell echo
 echo() {
   /bin/echo "$1" "$2"
+}
+
+error() {
+  /bin/echo $*; exit 1
 }
 
 # get root dir
@@ -20,8 +23,20 @@ rm -rf $compile_dir
 mkdir -p $compile_dir
 
 # fetching app
+case $1 in
+  *.json)
+    manifest=$(mktemp -t manifest_XXXXX)
+    curl -s $1 -o $manifest
+    $root_dir/bin/download_manifest $manifest $compile_dir >/dev/null
+    ;;
+  *.git)
+    git clone "$1" "$compile_dir" --recursive --depth 1 >/dev/null 2>/dev/null
+    ;;
+  *)
+    error "Unknown source type: $1"
+    ;;
+esac
+
 manifest=$(mktemp -t manifest_XXXXX)
-curl -s $ANVIL_HOST/manifest/$id.json -o $manifest
-$root_dir/bin/download_manifest $manifest $compile_dir >/dev/null
 
 echo $compile_dir

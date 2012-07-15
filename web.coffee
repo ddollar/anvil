@@ -1,3 +1,4 @@
+builder  = require("builder").init()
 coffee   = require("coffee-script")
 crypto   = require("crypto")
 express  = require("express")
@@ -10,6 +11,8 @@ app = express.createServer(
   express.logger(),
   express.cookieParser(),
   express.bodyParser())
+
+app.post "/build", builder.build_request
 
 app.get "/cache/:id.tgz", (req, res) ->
   storage.get "/cache/#{req.params.id}.tgz", (err, get) ->
@@ -40,37 +43,15 @@ app.post "/file/:hash", (req, res) ->
       res.send "file does not match hash", 403
 
 app.post "/manifest", (req, res) ->
-  manifest.init(JSON.parse(req.body.manifest)).save (err, id) ->
-    res.contentType "application/json"
-    res.send JSON.stringify({ id:id })
-
-app.post "/build", (req, res) ->
-  options =
-    buildpack: req.body.buildpack
-    cache:     req.body.cache
-    env:       req.body.env
-  require("builder").init().build req.body.source, options, (build, builder) ->
-    res.writeHead 200
-      "Content-Type":      "text/plain"
-      "Transfer-Encoding": "chunked"
-      "X-Cache-Url":       builder.cache_url
-      "X-Slug-Url":        builder.slug_url()
-    build.on "data", (data)   -> res.write(data)
-    build.on "end", (success) -> res.end()
+  manifest.init(JSON.parse(req.body.manifest)).save (err, manifest_url) ->
+    res.header "Location", manifest_url
+    res.send "ok"
 
 app.post "/manifest/build", (req, res) ->
-  options =
-    buildpack: req.body.buildpack
-    cache:     req.body.cache
-    env:       req.body.env
-  manifest.init(JSON.parse(req.body.manifest)).build options, (build, builder) ->
-    res.writeHead 200
-      "Content-Type":      "text/plain"
-      "Transfer-Encoding": "chunked"
-      "X-Cache-Url":       builder.cache_url
-      "X-Slug-Url":        builder.slug_url()
-    build.on "data", (data)   -> res.write(data)
-    build.on "end", (success) -> res.end()
+  manifest.init(JSON.parse(req.body.manifest)).save (err, manifest_url) ->
+    delete req.body.manifest
+    req.body.source = manifest_url
+    builder.build_request req, res
 
 app.post "/manifest/diff", (req, res) ->
   manifest.init(JSON.parse(req.body.manifest)).missing_hashes (hashes) ->

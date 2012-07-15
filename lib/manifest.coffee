@@ -11,17 +11,13 @@ class Manifest
   hashes: ->
     object.hash for name, object of @manifest when object.hash
 
-  build: (options, cb) =>
-    @save (err) =>
-      @builder.build @manifest_url(), options, cb
-
   save: (cb) ->
     manifest = new Buffer(JSON.stringify(@manifest), "binary")
     options  =
       "Content-Length": manifest.length,
       "Content-Type":  "application/json"
     @storage.create "/manifest/#{@id}.json", manifest, options, (err) =>
-      cb err, @id
+      cb err, @manifest_url()
 
   missing_hashes: (cb) ->
     async.parallel @datastore_testers(), (err, results) ->
@@ -47,8 +43,3 @@ class Manifest
 
 module.exports.init = (manifest) ->
   new Manifest(manifest)
-
-module.exports.init_with_id = (id, cb) ->
-  storage = require("storage").init()
-  storage.get_file "/manifest/#{id}.json", (err, get) ->
-    cb null, new Manifest(manifest)

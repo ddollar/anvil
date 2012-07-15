@@ -25,6 +25,20 @@ class Builder
       cb builder, this
       builder.emit "data", "Launching build process... "
 
+  build_request: (req, res) ->
+    options =
+      buildpack: req.body.buildpack
+      cache:     req.body.cache
+      env:       req.body.env
+    require("builder").init().build req.body.source, options, (build, builder) ->
+      res.writeHead 200
+        "Content-Type":      "text/plain"
+        "Transfer-Encoding": "chunked"
+        "X-Cache-Url":       builder.cache_url
+        "X-Slug-Url":        builder.slug_url()
+      build.on "data", (data)   -> res.write(data)
+      build.on "end", (success) -> res.end()
+
   buildpack_with_default: (buildpack) ->
     if (buildpack || "") is "" then "https://buildkits.herokuapp.com/buildkit/default.tgz" else buildpack
 

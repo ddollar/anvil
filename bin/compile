@@ -137,6 +137,9 @@ if [ "$CACHE_URL" != "" ]; then
   fi
 fi
 
+# buildpack cleanup
+rm -rf $compile_dir/.buildpack
+
 # make slug
 if [ "$SLUG_PUT_URL" != "" ]; then
   echo -n "Creating slug... "

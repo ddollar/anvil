@@ -1,4 +1,5 @@
 crypto = require("crypto")
+fs     = require("fs")
 knox   = require("knox")
 qs     = require("querystring")
 uuid   = require("node-uuid")
@@ -35,6 +36,17 @@ class Storage
   create_stream: (filename, stream, cb) ->
     @knox.putStream stream, filename, (err, res) ->
       cb null
+
+  verify_hash: (filename, hash, cb) ->
+    sha  = crypto.createHash("sha256")
+    file = fs.createReadStream(filename)
+    file.on "data", (data) ->
+      sha.update data
+    file.on "end", ->
+      if hash == sha.digest("hex")
+        cb null
+      else
+        cb "file does not match hash"
 
   generate_put_url: (filename, cb) ->
     ttl = 3600

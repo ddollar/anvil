@@ -53,5 +53,5 @@ fi
 echo -n "Uploading ${slug_url} to S3 as ${environment}... "
 downloaded=$(mktemp -t build_XXXXX)
 curl -s $slug_url -o $downloaded
-$root/script/s3 put $downloaded /software/anvil-$environment.img >/dev/null 2>&1
+$root/script/s3 put $downloaded /software/anvil-$environment.tgz >/dev/null 2>&1
 echo "done"

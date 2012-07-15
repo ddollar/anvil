@@ -1,6 +1,6 @@
 # anvil
 
-Generic Build Server
+Generic build server
 
 ## Installation
 

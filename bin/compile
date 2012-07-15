@@ -6,11 +6,6 @@ set -o pipefail
 
 compile_dir=$1
 
-chr () {
-  [ ${1} -lt 256 ] || return 1
-  printf \\$(($1/64*100+$1%64/8*10+$1%8))
-}
-
 # override built-in shell echo
 echo() {
   /bin/echo "$1" "$2"

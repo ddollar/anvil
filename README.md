@@ -1,6 +1,6 @@
 # anvil
 
-Alternate Heroku push/deploy workflow.
+Generic Build Server
 
 ## Installation
 

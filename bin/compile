@@ -68,6 +68,12 @@ case $BUILDPACK_URL in
       cd - >/dev/null 2>&1
     fi
     ;;
+  *.sh)
+    compile_script=$(mktemp -t compile_script_XXXXX)
+    cp -r $root_dir/data/buildpack-custom/* .buildpack/
+    curl -s $BUILDPACK_URL -o .buildpack/bin/script
+    chmod +x .buildpack/bin/script
+    ;;
   *)
     echo "failed"
     error "Unknown buildpack type: $BUILDPACK_URL"

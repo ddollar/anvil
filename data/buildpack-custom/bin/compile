@@ -1,0 +1,4 @@
+#!/bin/sh
+root=$(dirname $(dirname $0))
+cd $1
+$root/bin/script

@@ -7,7 +7,8 @@
 #/
 #/   <build_environment> will default to "production"
 #/
-#/   -s: triple compile to bootstrap compiler changes
+#/   -t: test anvil by building itself recursively over
+#/       three generations
 
 
 # fail fast
@@ -35,13 +36,13 @@ check_env AWS_SECRET
 check_env S3_BUCKET
 
 root=$(dirname $(dirname $0))
-bootstrap=""
+testrun=""
 build_environment="production"
 
-while getopts "hsb:" opt; do
+while getopts "htb:" opt; do
   case $opt in
     h) usage; exit 0 ;;
-    s) bootstrap="1" ;;
+    t) testrun="1" ;;
     b) build_environment="$OPTARG" ;;
     ?) usage; exit 0 ;;
   esac
@@ -58,15 +59,15 @@ fi
 if [ "$release_environment" == "" ]; then
   error "Must specify a release environment."
 fi
- 
+
 slug_url=$(bin/build $build_environment)
 bin/release $release_environment $slug_url
 
-if [ "$bootstrap" == "1" ]; then
-  slug_url=$(bin/build $build_environment)
+if [ "$testrun" == "1" ]; then
+  slug_url=$(bin/build $release_environment)
   bin/release $release_environment $slug_url
 
-  slug_url=$(bin/build $build_environment)
+  slug_url=$(bin/build $release_environment)
   bin/release $release_environment $slug_url
 fi
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#/ Usage: upload <slug_url>
+#/ Usage: upload <slug_url> <environment>
 #/
 #/  upload the slug_url to s3 as permanent storage
 
@@ -40,6 +40,7 @@ done
 shift $((OPTIND-1))
 
 slug_url=$1
+environment=$2
 
 if [ "$slug_url" == "" ]; then
   error "Must specify a slug url."
@@ -48,5 +49,5 @@ fi
 echo -n "Uploading ${slug_url} to S3... "
 downloaded=$(mktemp -t build_XXXXX)
 curl -s $slug_url -o $downloaded
-$root/bin/s3 put $downloaded /software/production/anvil.img >/dev/null 2>&1
+$root/bin/s3 put $downloaded /software/$environment/anvil.img >/dev/null 2>&1
 echo "done"

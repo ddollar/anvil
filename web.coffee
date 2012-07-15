@@ -1,4 +1,4 @@
-builder  = require("builder").init()
+builder  = require("builder")
 coffee   = require("coffee-script")
 crypto   = require("crypto")
 express  = require("express")
@@ -12,7 +12,8 @@ app = express.createServer(
   express.cookieParser(),
   express.bodyParser())
 
-app.post "/build", builder.build_request
+app.post "/build", (req, res) ->
+  builder.init().build_request req, res
 
 app.get "/cache/:id.tgz", (req, res) ->
   storage.get "/cache/#{req.params.id}.tgz", (err, get) ->
@@ -45,7 +46,7 @@ app.post "/manifest/build", (req, res) ->
   manifest.init(JSON.parse(req.body.manifest)).save (err, manifest_url) ->
     delete req.body.manifest
     req.body.source = manifest_url
-    builder.build_request req, res
+    builder.init().build_request req, res
 
 app.post "/manifest/diff", (req, res) ->
   manifest.init(JSON.parse(req.body.manifest)).missing_hashes (hashes) ->

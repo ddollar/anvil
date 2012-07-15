@@ -1,11 +1,13 @@
 #!/bin/bash
 #
-#/ Usage: deploy [-s] [-b <build_environment>] <release_environment>
+#/ Usage: deploy [-g] [-t] [-b <build_environment>] <release_environment>
 #/
 #/   compile anvil using anvil-<build_environment> and release
 #/   it to anvil-<release_environment>
 #/
 #/   <build_environment> will default to "production"
+#/
+#/   -g: use git remote as build source
 #/
 #/   -t: test anvil by building itself recursively over
 #/       three generations
@@ -31,17 +33,27 @@ usage() {
   cat $0 | grep '^#/' | cut -c4-
 }
 
+build() {
+  if [ "$git" == "1" ]; then
+    $root/bin/build -g $1
+  else
+    $root/bin/build $1
+  fi
+}
+
 check_env AWS_ACCESS
 check_env AWS_SECRET
 check_env S3_BUCKET
 
 root=$(dirname $(dirname $0))
+git=""
 testrun=""
 build_environment="production"
 
-while getopts "htb:" opt; do
+while getopts "hgtb:" opt; do
   case $opt in
     h) usage; exit 0 ;;
+    g) git="1" ;;
     t) testrun="1" ;;
     b) build_environment="$OPTARG" ;;
     ?) usage; exit 0 ;;
@@ -60,14 +72,14 @@ if [ "$release_environment" == "" ]; then
   error "Must specify a release environment."
 fi
 
-slug_url=$(bin/build $build_environment)
+slug_url=$(build $build_environment)
 bin/release $release_environment $slug_url
 
 if [ "$testrun" == "1" ]; then
-  slug_url=$(bin/build $release_environment)
+  slug_url=$(build $release_environment)
   bin/release $release_environment $slug_url
 
-  slug_url=$(bin/build $release_environment)
+  slug_url=$(build $release_environment)
   bin/release $release_environment $slug_url
 fi
 

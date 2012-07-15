@@ -1,11 +1,13 @@
 #!/bin/bash
 #
-#/ Usage: build <environment>
+#/ Usage: build [-g] <environment>
 #/
 #/   build anvil using the anvil-<build> app
 #/
 #/   slug url will be output to stdout
 #/   build output will be output to stderr
+#/
+#/   -g: use git remote as build source
 
 # fail fast
 set -o errexit
@@ -29,9 +31,10 @@ usage() {
 
 root=$(dirname $(dirname $0))
 
-while getopts "h" opt; do
+while getopts "hg" opt; do
   case $opt in
     h) usage; exit 0 ;;
+    g) root="https://github.com/ddollar/anvil.git" ;;
     ?) usage; exit 0 ;;
   esac
 done

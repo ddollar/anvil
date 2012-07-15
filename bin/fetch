@@ -47,6 +47,7 @@ case $source_url in
         error "failed, no such ref: $source_anchor"
       cd - >/dev/null 2>&1
     fi
+    rm -rf $compile_dir/.git
     ;;
   *.tar.gz|*.tgz)
     tarball=$(mktemp -t tarball_XXXXX)

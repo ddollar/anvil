@@ -1,11 +1,11 @@
 #!/bin/bash
 #
-#/ Usage: deploy [-g] [-t] [-b <build_environment>] <release_environment>
+#/ Usage: deploy [-g] [-t] [-b <build>] <release>
 #/
-#/   compile anvil using anvil-<build_environment> and release
-#/   it to anvil-<release_environment>
+#/   compile anvil using anvil-<build> and release
+#/   it to anvil-<release>
 #/
-#/   <build_environment> will default to "production"
+#/   <build> will default to "production"
 #/
 #/   -g: use git remote as build source
 #/

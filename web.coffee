@@ -1,4 +1,5 @@
 coffee   = require("coffee-script")
+crypto   = require("crypto")
 express  = require("express")
 fs       = require("fs")
 manifest = require("manifest")
@@ -26,8 +27,16 @@ app.get "/file/:hash", (req, res) ->
     get.on "end",          -> res.end()
 
 app.post "/file/:hash", (req, res) ->
-  storage.create_stream "/hash/#{req.params.hash}", fs.createReadStream(req.files.data.path), (err) ->
-    res.send("ok")
+  sha  = crypto.createHash("sha256")
+  file = fs.createReadStream(req.files.data.path)
+  file.on "data", (data) ->
+    sha.update data
+  file.on "end", ->
+    if req.params.hash == sha.digest("hex")
+      storage.create_stream "/hash/#{req.params.hash}", fs.createReadStream(req.files.data.path), (err) ->
+        res.send "ok"
+    else
+      res.send "file does not match hash", 403
 
 app.post "/manifest", (req, res) ->
   manifest.init(JSON.parse(req.body.manifest)).save (err, id) ->

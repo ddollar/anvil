@@ -1,0 +1,8 @@
+#!/bin/sh
+
+# fail fast
+set -o errexit
+set -o pipefail
+
+foreman run script/deploy -g -t staging
+foreman run script/copy staging production

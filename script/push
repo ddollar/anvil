@@ -12,7 +12,6 @@ heroku cloud standard
 
 # release to standard staging using standard production
 env ANVIL_HOST=https://anvil-production.herokuapp.com heroku build $git -r -a anvil-staging
-sleep 2
 
 # build again using staging to make sure it works
 slug=$(env ANVIL_HOST=https://anvil-staging.herokuapp.com heroku build $git -p)

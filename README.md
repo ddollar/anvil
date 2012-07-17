@@ -57,7 +57,7 @@ Applications are described by a manifest, in JSON format:
 	< HTTP/1.1 200 OK
 	< Content-Type: text/plain
 	< Transfer-Encoding: chunked
-	< X-Slug-Url: http://localhost:5000/slugs/00000000-0000-0000-0000-000000000000.img
+	< X-Slug-Url: http://localhost:5000/slugs/00000000-0000-0000-0000-000000000000.tgz
 	< Connection: keep-alive
 	<
 	Launching build process... done

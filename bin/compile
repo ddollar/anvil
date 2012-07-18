@@ -113,6 +113,7 @@ cd $compile_dir
 
 .buildpack/bin/compile $compile_dir $cache_dir 2>&1 | \
   sed -le 's/^ \!     /       ERROR: /g' | \
+  sed -le "s/^----->/ /g" | \
   sed -le "s/^      / /g"
 
 # write .profile to the top of any existing .profile

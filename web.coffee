@@ -12,6 +12,9 @@ app = express.createServer(
   express.cookieParser(),
   express.bodyParser())
 
+app.get "/", (req, res) ->
+  res.send "ok"
+
 app.post "/build", (req, res) ->
   builder.init().build_request req, res
 

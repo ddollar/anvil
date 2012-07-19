@@ -5,21 +5,25 @@ class Logger
   constructor: (@subject, @options={}) ->
 
   write: (subject, options={}) ->
-    message = ("#{key}=\"#{val}\"" for key, val of coffee.helpers.merge(subject:subject, options))
+    message = ("#{key}=\"#{val.toString().replace('"', '\\"')}\"" for key, val of coffee.helpers.merge(subject:subject, options))
     console.log message.join(" ")
 
   log: (opts={}, cb) ->
     options = coffee.helpers.merge(@options, opts)
     if cb?
       logger = new Logger(@subject, options)
-      start  = new Date().getTime()
+      logger.start = new Date().getTime()
       @write @subject, coffee.helpers.merge(options, at:"start")
-      cb(logger.log)
-      finish  = new Date().getTime()
-      elapsed = (finish - start)
-      @write @subject, coffee.helpers.merge(options, at:"finish", elapsed:elapsed)
+      cb(logger)
     else
       @write @subject, options
+
+  finish: (opts={}) ->
+    options = coffee.helpers.merge(@options, opts)
+    finish  = new Date().getTime()
+    elapsed = (finish - @start)
+    @write @subject, coffee.helpers.merge(options, at:"finish", elapsed:elapsed)
+
 
 module.exports = (subject, options={}, cb=null) ->
   new Logger(subject).log(options, cb)

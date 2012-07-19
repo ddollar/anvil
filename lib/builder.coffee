@@ -27,7 +27,7 @@ class Builder
         cb builder, this
         builder.emit "data", "Launching build process... "
 
-  build_request: (req, res) ->
+  build_request: (req, res, logger) ->
     options =
       buildpack: req.body.buildpack
       cache:     req.body.cache
@@ -49,6 +49,7 @@ class Builder
         else
           res.write(data)
       build.on "end", (success) ->
+        logger.finish()
         res.end()
 
   buildpack_with_default: (buildpack) ->

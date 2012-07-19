@@ -24,6 +24,5 @@ class Logger
     elapsed = (finish - @start)
     @write @subject, coffee.helpers.merge(options, at:"finish", elapsed:elapsed)
 
-
 module.exports = (subject, options={}, cb=null) ->
   new Logger(subject).log(options, cb)

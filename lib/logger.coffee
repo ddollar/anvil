@@ -13,11 +13,11 @@ class Logger
     if cb?
       logger = new Logger(@subject, options)
       start  = new Date().getTime()
-      @write @subject, coffee.helpers.merge(options, start:start)
+      @write @subject, coffee.helpers.merge(options, at:"start")
       cb(logger.log)
       finish  = new Date().getTime()
       elapsed = (finish - start)
-      @write @subject, coffee.helpers.merge(options, finish:finish, elapsed:elapsed)
+      @write @subject, coffee.helpers.merge(options, at:"finish", elapsed:elapsed)
     else
       @write @subject, options
 

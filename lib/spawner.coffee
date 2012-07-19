@@ -35,7 +35,7 @@ class Spawner
     data["attach"] = "true"
     data["command"] = command
 
-    request = restler.post "https://api.heroku.com/apps/#{app}/ps",
+    request = restler.post "https://#{process.env.HEROKU_HOST}/apps/#{app}/ps",
       headers:
         "Authorization": new Buffer(":" + api_key).toString("base64")
         "Accept":        "application/json"

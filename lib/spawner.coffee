@@ -25,8 +25,9 @@ class Spawner
     emitter
 
   spawn_heroku: (command, options) ->
+    host    = process.env.HEROKU_HOST
     api_key = process.env.HEROKU_API_KEY
-    app = process.env.HEROKU_APP
+    app     = process.env.HEROKU_APP
     emitter = new events.EventEmitter()
 
     data = {}
@@ -35,7 +36,7 @@ class Spawner
     data["attach"] = "true"
     data["command"] = command
 
-    request = restler.post "https://#{process.env.HEROKU_HOST}/apps/#{app}/ps",
+    request = restler.post "https://#{host}/apps/#{app}/ps",
       headers:
         "Authorization": new Buffer(":" + api_key).toString("base64")
         "Accept":        "application/json"

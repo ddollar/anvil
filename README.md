@@ -50,7 +50,7 @@ Applications are described by a manifest, in JSON format:
     $ curl -v -X POST https://anvil.herokuapp.com/manifest \
            -d "manifest=$(cat manifest.json)" \
            -d "buildpack=https%3A%2F%2Fbuildkit.herokuapp.com%2Fbuildkit%2Fdefault.tgz" \
-           -d "env[FOO]=bar"
+           -d "env={'FOO':'bar'}"
 	* Connected to anvil.herokuapp.com (107.20.215.233) port 443 (#0)
 	> POST /manifest/build HTTP/1.1
 	< HTTP/1.1 100 Continue

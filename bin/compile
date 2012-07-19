@@ -16,6 +16,9 @@ error() {
 }
 
 on_exit() {
+  exitcode=$(mktemp -t exitcode_XXXXX)
+  echo $? >> $exitcode
+  curl -s -T $exitcode "$EXIT_PUT_URL"
   printf "ANVIL!EXITCODE:\\$(printf '%03o' $?)"
 }
 

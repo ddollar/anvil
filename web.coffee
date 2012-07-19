@@ -26,6 +26,11 @@ app.put "/cache/:id.tgz", (req, res) ->
   storage.create_stream "/cache/#{req.params.id}.tgz", fs.createReadStream(req.files.data.path), (err) ->
     res.send("ok")
 
+app.get "/exit/:id", (req, res) ->
+  storage.get "/exit/#{req.params.id}", (err, get) ->
+    get.on "data", (chunk) -> res.write chunk
+    get.on "end",          -> res.end()
+
 app.get "/file/:hash", (req, res) ->
   storage.get "/hash/#{req.params.hash}", (err, get) ->
     res.writeHead get.statusCode,

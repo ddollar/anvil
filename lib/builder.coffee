@@ -9,21 +9,23 @@ class Builder
 
   build: (source, options, cb) ->
     @storage.generate_put_url "slug/#{@id}.tgz", (err, slug_put_url) =>
-      env =
-        ANVIL_HOST:    process.env.ANVIL_HOST
-        BUILDPACK_URL: @buildpack_with_default(options.buildpack)
-        CACHE_URL:     @cache_with_default(options.cache)
-        NODE_ENV:      process.env.NODE_ENV
-        NODE_PATH:     process.env.NODE_PATH
-        PATH:          process.env.PATH
-        SLUG_ID:       @id
-        SLUG_URL:      @slug_url()
-        SLUG_PUT_URL:  slug_put_url
-        SOURCE_URL:    source
-      env[key] = val for key, val of options.env
-      builder  = @spawner.spawn("bin/compile $(bin/fetch $SOURCE_URL)", env:env)
-      cb builder, this
-      builder.emit "data", "Launching build process... "
+      @storage.generate_put_url "exit/#{@id}", (err, exit_put_url) =>
+        env =
+          ANVIL_HOST:    process.env.ANVIL_HOST
+          BUILDPACK_URL: @buildpack_with_default(options.buildpack)
+          CACHE_URL:     @cache_with_default(options.cache)
+          EXIT_PUT_URL:  exit_put_url
+          NODE_ENV:      process.env.NODE_ENV
+          NODE_PATH:     process.env.NODE_PATH
+          PATH:          process.env.PATH
+          SLUG_ID:       @id
+          SLUG_URL:      @slug_url()
+          SLUG_PUT_URL:  slug_put_url
+          SOURCE_URL:    source
+        env[key] = val for key, val of options.env
+        builder  = @spawner.spawn("bin/compile $(bin/fetch $SOURCE_URL)", env:env)
+        cb builder, this
+        builder.emit "data", "Launching build process... "
 
   build_request: (req, res) ->
     options =
@@ -35,6 +37,7 @@ class Builder
         "Content-Type":      "text/plain"
         "Transfer-Encoding": "chunked"
         "X-Cache-Url":       builder.cache_url
+        "X-Manifest-Id":     builder.id
         "X-Slug-Url":        builder.slug_url()
       build.on "data", (data)   ->
         exit_header = "ANVIL!EXITCODE:"

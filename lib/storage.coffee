@@ -31,7 +31,6 @@ class Storage
     put = @knox.put filename, options
     put.on "response", (res) -> cb null
     put.end data
-    console.log "in create: #{filename}"
 
   create_stream: (filename, stream, cb) ->
     @knox.putStream stream, filename, (err, res) ->

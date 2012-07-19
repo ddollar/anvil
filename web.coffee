@@ -7,8 +7,19 @@ manifest = require("manifest")
 storage  = require("storage").init()
 util     = require("util")
 
+express.logger.format "method", (req, res) ->
+  req.method.toLowerCase()
+
+express.logger.format "url", (req, res) ->
+  req.url.replace('"', '&quot')
+
+express.logger.format "user-agent", (req, res) ->
+  (req.headers["user-agent"] || "").replace('"', '')
+
 app = express.createServer(
-  express.logger(),
+  express.logger
+    buffer: false
+    format: "http method=\":method\" url=\":url\" status=\":status\" elapsed=\":response-time\" from=\":remote-addr\" agent=\":user-agent\""
   express.bodyParser())
 
 app.get "/", (req, res) ->

@@ -19,7 +19,7 @@ express.logger.format "user-agent", (req, res) ->
 app = express.createServer(
   express.logger
     buffer: false
-    format: "http method=\":method\" url=\":url\" status=\":status\" elapsed=\":response-time\" from=\":remote-addr\" agent=\":user-agent\""
+    format: "subject=\"http\" method=\":method\" url=\":url\" status=\":status\" elapsed=\":response-time\" from=\":remote-addr\" agent=\":user-agent\""
   express.bodyParser())
 
 app.get "/", (req, res) ->

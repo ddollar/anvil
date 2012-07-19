@@ -46,22 +46,23 @@ if [ "$BUILDPACK_ANCHOR" == "$BUILDPACK_URL" ]; then
   BUILDPACK_ANCHOR=""
 fi
 echo -n "Fetching buildpack... "
-rm -rf .buildpack; mkdir -p .buildpack;
+buildpack=$(mktemp -t buildpack_XXXXX)
+rm -rf $buildpack; mkdir -p $buildpack;
 case $BUILDPACK_URL in
   *.json)
     buildpack_manifest=$(mktemp -t buildpack_manifest_XXXXX)
     curl -s $BUILDPACK_URL -o $buildpack_manifest
-    $root_dir/bin/download_manifest $buildpack_manifest .buildpack >/dev/null 2>&1
+    $root_dir/bin/download_manifest $buildpack_manifest $buildpack >/dev/null 2>&1
     ;;
   *.tgz)
-    cd .buildpack
+    cd $buildpack
     curl -s $BUILDPACK_URL -o- | tar xzf -
-    cd ..
+    cd - >/dev/null 2>&1
     ;;
   *.git)
-    git clone --recursive $BUILDPACK_URL .buildpack >/dev/null 2>&1
+    git clone --recursive $BUILDPACK_URL $buildpack >/dev/null 2>&1
     if [ "$BUILDPACK_ANCHOR" != "" ]; then
-      cd .buildpack >/dev/null 2>&1
+      cd $buildpack >/dev/null 2>&1
       git remote update >/dev/null 2>&1
       git checkout "$BUILDPACK_ANCHOR" >/dev/null 2>&1 || \
         error "failed, no such ref: $BUILDPACK_ANCHOR"
@@ -70,9 +71,9 @@ case $BUILDPACK_URL in
     ;;
   *.sh)
     compile_script=$(mktemp -t compile_script_XXXXX)
-    cp -r $root_dir/data/buildpack-custom/* .buildpack/
-    curl -s $BUILDPACK_URL -o .buildpack/bin/script
-    chmod +x .buildpack/bin/script
+    cp -r $root_dir/data/buildpack-custom/* $buildpack/
+    curl -s $BUILDPACK_URL -o $buildpack/bin/script
+    chmod +x $buildpack/bin/script
     ;;
   *)
     echo "failed"
@@ -84,7 +85,7 @@ echo "done"
 
 # get buildpack name
 echo -n "Detecting buildpack... "
-buildpack_name=$(.buildpack/bin/detect "$compile_dir")
+buildpack_name=$($buildpack/bin/detect "$compile_dir")
 
 # abort if detect failes
 if [ $? -eq 0 ]; then
@@ -111,7 +112,7 @@ profiled_scan_old=$(ls -la $compile_dir/.profile.d/ 2>&1 || echo "empty")
 echo "Compiling app..."
 cd $compile_dir
 
-.buildpack/bin/compile $compile_dir $cache_dir 2>&1 | \
+$buildpack/bin/compile $compile_dir $cache_dir 2>&1 | \
   sed -le 's/^ \!     /       ERROR: /g' | \
   sed -le "s/^----->/ /g" | \
   sed -le "s/^      /   /g"
@@ -135,7 +136,7 @@ profiled_scan_new=$(ls -la $compile_dir/.profile.d/ 2>&1 || echo "empty")
 if [ "$profiled_scan_old" == "$profiled_scan_new" ]; then
   echo -n "Writing .profile.d/buildpack.sh... "
   mkdir -p $compile_dir/.profile.d
-  .buildpack/bin/release $compile_dir | \
+  $buildpack/bin/release $compile_dir | \
     ruby -ryaml -e "
       release = YAML.load(STDIN.read)  || {}
       vars    = release['config_vars'] || {}
@@ -174,7 +175,7 @@ if [ "$CACHE_URL" != "" ]; then
 fi
 
 # buildpack cleanup
-rm -rf $compile_dir/.buildpack
+rm -rf $buildpack
 
 # make slug
 if [ "$SLUG_PUT_URL" != "" ]; then

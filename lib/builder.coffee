@@ -36,8 +36,17 @@ class Builder
         "Transfer-Encoding": "chunked"
         "X-Cache-Url":       builder.cache_url
         "X-Slug-Url":        builder.slug_url()
-      build.on "data", (data)   -> res.write(data)
-      build.on "end", (success) -> res.end()
+      build.on "data", (data)   ->
+        exit_header = "ANVIL!EXITCODE:"
+        if (pos = data.toString().indexOf(exit_header)) > -1
+          res.write data.slice(0, pos)
+          code = data[pos + exit_header.length]
+          res.addTrailers
+            "X-Exit-Code": code.toString()
+        else
+          res.write(data)
+      build.on "end", (success) ->
+        res.end()
 
   buildpack_with_default: (buildpack) ->
     if (buildpack || "") is "" then "https://buildkits.herokuapp.com/buildkit/default.tgz" else buildpack

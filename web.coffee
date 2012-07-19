@@ -3,6 +3,7 @@ coffee   = require("coffee-script")
 crypto   = require("crypto")
 express  = require("express")
 fs       = require("fs")
+log      = require("logger")
 manifest = require("manifest")
 storage  = require("storage").init()
 util     = require("util")
@@ -43,11 +44,12 @@ app.get "/exit/:id", (req, res) ->
     get.on "end",          -> res.end()
 
 app.get "/file/:hash", (req, res) ->
-  storage.get "/hash/#{req.params.hash}", (err, get) ->
-    res.writeHead get.statusCode,
-      "Content-Length": get.headers["content-length"]
-    get.on "data", (chunk) -> res.write chunk
-    get.on "end",          -> res.end()
+  log "file.get", hash:req.params.hash, ->
+    storage.get "/hash/#{req.params.hash}", (err, get) ->
+      res.writeHead get.statusCode,
+        "Content-Length": get.headers["content-length"]
+      get.on "data", (chunk) -> res.write chunk
+      get.on "end",          -> res.end()
 
 app.post "/file/:hash", (req, res) ->
   storage.verify_hash req.files.data.path, req.params.hash, (err) ->

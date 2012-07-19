@@ -16,8 +16,7 @@ error() {
 }
 
 on_exit() {
-  sleep 1
-  printf "\000\042\000\001\\$(printf '%03o' $?)"
+  printf "ANVIL!EXITCODE:\\$(printf '%03o' $?)"
 }
 
 trap on_exit EXIT

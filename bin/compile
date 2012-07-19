@@ -134,30 +134,32 @@ profiled_scan_new=$(ls -la $compile_dir/.profile.d/ 2>&1 || echo "empty")
 # if profile.d has not been written, let's generate one from bin/release
 # to work around old buildpacks
 if [ "$profiled_scan_old" == "$profiled_scan_new" ]; then
-  echo -n "Writing .profile.d/buildpack.sh... "
-  mkdir -p $compile_dir/.profile.d
-  $buildpack/bin/release $compile_dir | \
-    ruby -ryaml -e "
-      release = YAML.load(STDIN.read)  || {}
-      vars    = release['config_vars'] || {}
+  if [ -x $buildpack/bin/release ]; then
+    echo -n "Writing .profile.d/buildpack.sh... "
+    mkdir -p $compile_dir/.profile.d
+    $buildpack/bin/release $compile_dir | \
+      ruby -ryaml -e "
+        release = YAML.load(STDIN.read)  || {}
+        vars    = release['config_vars'] || {}
 
-      vars.each do |key, value|
-        if key == 'PATH'
-          # add HOME to relative PATHs
-          value = value.split(':').map do |part|
-            case part[0..0]
-              when '/' then part
-              else \"\$HOME/#{part}\"
-            end
-          end.join(':')
+        vars.each do |key, value|
+          if key == 'PATH'
+            # add HOME to relative PATHs
+            value = value.split(':').map do |part|
+              case part[0..0]
+                when '/' then part
+                else \"\$HOME/#{part}\"
+              end
+            end.join(':')
 
-          puts %{export #{key}=\"#{value}\"}
-        else
-          puts %{export #{key}=\${#{key}:-#{value}}}
+            puts %{export #{key}=\"#{value}\"}
+          else
+            puts %{export #{key}=\${#{key}:-#{value}}}
+          end
         end
-      end
-    " >> $compile_dir/.profile.d/buildpack.sh
-  echo "done"
+      " >> $compile_dir/.profile.d/buildpack.sh
+    echo "done"
+  fi
 fi
 
 # put cache

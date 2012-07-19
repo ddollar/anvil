@@ -40,7 +40,7 @@ class Spawner
       headers:
         "Authorization": new Buffer(":" + api_key).toString("base64")
         "Accept":        "application/json"
-        "User-Agent":    "heroku-gem/2.5"
+        "User-Agent":    "anvil/0.0"
       data: data
 
     request.on "success", (data) ->

@@ -11,7 +11,7 @@ cloud=$(heroku cloud)
 heroku cloud standard
 
 # release what is on github to anvil-staging
-heroku build $git -r -a anvil-staging
+env ANVIL_HOST=https://api.anvilworks.org heroku build $git -r -a anvil-staging
 
 # use the newly-deployed compiler to build itself twice more to
 # make sure we have a compiler that can build working apps

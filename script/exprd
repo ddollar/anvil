@@ -1,0 +1,17 @@
+exprc destroy \
+  --name anvil.api.file.get.count.per-minute
+
+exprc create \
+  --name anvil.api.file.get.count.per-minute \
+  --type count \
+  --window 60 \
+  --predicate '["and", ["=", "subject", "file.get"], ["=", "at", "finish"]]'
+
+exprc destroy \
+  --name anvil.api.file.post.count.per-minute
+
+exprc create \
+  --name anvil.api.file.post.count.per-minute \
+  --type count \
+  --window 60 \
+  --predicate '["and", ["=", "subject", "file.post"], ["=", "at", "finish"]]'

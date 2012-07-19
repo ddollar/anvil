@@ -21,7 +21,7 @@ class Logger
   finish: (opts={}) ->
     options = coffee.helpers.merge(@options, opts)
     finish  = new Date().getTime()
-    elapsed = (finish - @start)
+    elapsed = (finish - @start) / 1000
     @write @subject, coffee.helpers.merge(options, at:"finish", elapsed:elapsed)
 
 module.exports = (subject, options={}, cb=null) ->

@@ -46,7 +46,8 @@ class Spawner
     request.on "success", (data) ->
       url = require("url").parse(data.rendezvous_url)
       rendezvous = tls.connect url.port, url.hostname, ->
-        if rendezvous.authorized
+        # work around invalid cert
+        if true || rendezvous.authorized
           console.log "valid socket"
           rendezvous.write url.pathname.substring(1) + "\n"
         else

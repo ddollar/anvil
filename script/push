@@ -10,10 +10,15 @@ git="https://github.com/ddollar/anvil.git"
 cloud=$(heroku cloud)
 heroku cloud standard
 
-# release to standard staging using standard production
-env ANVIL_HOST=https://anvil-production.herokuapp.com heroku build $git -r -a anvil-staging
+# release what is on github to anvil-staging
+heroku build $git -r -a anvil-staging
 
-# build again using staging to make sure it works
+# use the newly-deployed compiler to build itself twice more to
+# make sure we have a compiler that can build working apps
+env ANVIL_HOST=https://anvil-staging.herokuapp.com heroku build $git -r -a anvil-staging
+env ANVIL_HOST=https://anvil-staging.herokuapp.com heroku build $git -r -a anvil-staging
+
+# staging is good, make one more new slug off of it
 slug=$(env ANVIL_HOST=https://anvil-staging.herokuapp.com heroku build $git -p)
 
 # release to standard staging and production

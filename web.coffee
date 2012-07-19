@@ -27,7 +27,7 @@ app.get "/", (req, res) ->
   res.send "ok"
 
 app.post "/build", (req, res) ->
-  log "build", type:"url", source:req.body.source, buildpack:req.body.buildpack, (logger) ->
+  log "api.build", type:"url", source:req.body.source, buildpack:req.body.buildpack, (logger) ->
     builder.init().build_request req, res, logger
 
 app.get "/cache/:id.tgz", (req, res) ->
@@ -45,7 +45,7 @@ app.get "/exit/:id", (req, res) ->
     get.on "end",          -> res.end()
 
 app.get "/file/:hash", (req, res) ->
-  log "file.get", hash:req.params.hash, (logger) ->
+  log "api.file.get", hash:req.params.hash, (logger) ->
     storage.get "/hash/#{req.params.hash}", (err, get) ->
       res.writeHead get.statusCode,
         "Content-Length": get.headers["content-length"]
@@ -53,7 +53,7 @@ app.get "/file/:hash", (req, res) ->
       get.on "end",          -> logger.finish(); res.end()
 
 app.post "/file/:hash", (req, res) ->
-  log "file.post", hash:req.params.hash, (logger) ->
+  log "api.file.post", hash:req.params.hash, (logger) ->
     storage.verify_hash req.files.data.path, req.params.hash, (err) ->
       return res.send(err, 403) if err
       storage.create_stream "/hash/#{req.params.hash}", fs.createReadStream(req.files.data.path), (err) ->
@@ -65,7 +65,7 @@ app.post "/manifest", (req, res) ->
     res.send "ok"
 
 app.post "/manifest/build", (req, res) ->
-  log "build", type:"manifest", (logger) ->
+  log "api.build", type:"manifest", (logger) ->
     manifest.init(JSON.parse(req.body.manifest)).save (err, manifest_url) ->
       delete req.body.manifest
       req.body.source = manifest_url

@@ -9,7 +9,6 @@ util     = require("util")
 
 app = express.createServer(
   express.logger(),
-  express.cookieParser(),
   express.bodyParser())
 
 app.get "/", (req, res) ->

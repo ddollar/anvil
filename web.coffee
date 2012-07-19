@@ -52,10 +52,11 @@ app.get "/file/:hash", (req, res) ->
       get.on "end",          -> res.end()
 
 app.post "/file/:hash", (req, res) ->
-  storage.verify_hash req.files.data.path, req.params.hash, (err) ->
-    return res.send(err, 403) if err
-    storage.create_stream "/hash/#{req.params.hash}", fs.createReadStream(req.files.data.path), (err) ->
-      res.send "ok"
+  log "file.post", hash:req.params.hash, ->
+    storage.verify_hash req.files.data.path, req.params.hash, (err) ->
+      return res.send(err, 403) if err
+      storage.create_stream "/hash/#{req.params.hash}", fs.createReadStream(req.files.data.path), (err) ->
+        res.send "ok"
 
 app.post "/manifest", (req, res) ->
   manifest.init(JSON.parse(req.body.manifest)).save (err, manifest_url) ->

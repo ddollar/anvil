@@ -5,7 +5,7 @@ exprc create \
   --name anvil.api.file.get.count.per-minute \
   --type count \
   --window 60 \
-  --predicate '["and", ["=", "subject", "file.get"], ["=", "at", "finish"]]'
+  --predicate '["and", ["=", "subject", "api.file.get"], ["=", "at", "finish"]]'
 
 exprc destroy \
   --name anvil.api.file.post.count.per-minute
@@ -14,4 +14,33 @@ exprc create \
   --name anvil.api.file.post.count.per-minute \
   --type count \
   --window 60 \
-  --predicate '["and", ["=", "subject", "file.post"], ["=", "at", "finish"]]'
+  --predicate '["and", ["=", "subject", "api.file.post"], ["=", "at", "finish"]]'
+
+exprc destroy \
+  --name anvil.api.build.count.per-minute
+
+exprc create \
+  --name anvil.api.build.count.per-minute \
+  --type count \
+  --window 60 \
+  --predicate '["and", ["=", "subject", "api.build"], ["=", "at", "finish"]]'
+
+exprc destroy \
+  --name anvil.api.build.manifest.duration.avg.per-minute
+
+exprc create \
+  --name anvil.api.build.manifest.duration.avg.per-minute \
+  --type avg \
+  --window 60 \
+  --predicate '["and", ["=", "subject", "api.build"], ["=", "type", "manifest"], ["=", "at", "finish"]]' \
+  --value elapsed
+
+exprc destroy \
+  --name anvil.api.build.url.duration.avg.per-minute
+
+exprc create \
+  --name anvil.api.build.url.duration.avg.per-minute \
+  --type avg \
+  --window 60 \
+  --predicate '["and", ["=", "subject", "api.build"], ["=", "type", "url"], ["=", "at", "finish"]]' \
+  --value elapsed

@@ -1,3 +1,3 @@
 #!/bin/sh
 
-export NODE_PATH="lib"
+export NODE_PATH="$HOME/lib"

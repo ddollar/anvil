@@ -1,0 +1,22 @@
+#!/usr/bin/env ruby
+
+require "yaml"
+
+release = YAML.load(STDIN.read) || {}
+vars    = release["config_vars"] || {}
+
+vars.each do |key, value|
+  case key
+  when "PATH"
+    # add HOME to relative PATHs
+    value = value.split(':').map do |part|
+      case part[0..0]
+        when "/" then part
+        else "$HOME/#{part}"
+      end
+    end.join(":")
+    puts %{export #{key}="#{value}"}
+  else
+    puts %{export #{key}=${#{key}:-#{value}}}
+  end
+end

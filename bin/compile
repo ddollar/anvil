@@ -20,7 +20,10 @@ on_exit() {
   exitcode=$(mktemp -t exitcode_XXXXX)
   echo $code >> $exitcode
   curl -s -T $exitcode "$EXIT_PUT_URL"
-  #printf "ANVIL!EXITCODE:\\$(printf '%03o' $?)"
+}
+
+scan_profiled() {
+  ls -la $compile_dir/.profile.d/ 2>&1 || echo "empty"
 }
 
 trap on_exit EXIT
@@ -109,61 +112,45 @@ if [ "$CACHE_URL" != "" ]; then
 fi
 
 # scan .profile.d so we can detect changes
-profiled_scan_old=$(ls -la $compile_dir/.profile.d/ 2>&1 || echo "empty")
+profiled_scan_old=$(scan_profiled)
 
 # compile
 echo "Compiling app..."
 cd $compile_dir
 
-$buildpack/bin/compile $compile_dir $cache_dir 2>&1 | \
+sh -ic "$buildpack/bin/compile $compile_dir $cache_dir 2>&1" | \
   sed -le 's/^ \!     /       ERROR: /g' | \
   sed -le "s/^----->/ /g" | \
   sed -le "s/^      /   /g"
 
-# write .profile to the top of any existing .profile
-echo -n "Writing .profile... "
-profile=$(mktemp -t profile_XXXXX)
-cat $root_dir/data/.profile > $profile
+# move existing .profile to .profile.d/app.sh
 if [ -f $compile_dir/.profile ]; then
-  cat $compile_dir/.profile >> $profile
+  mkdir -p $compile_dir/.profile.d
+  mv $compile_dir/.profile $compile_dir/.profile.d/app.sh
 fi
-mv $profile $compile_dir/.profile
+
+# write a new .profile that reads .profile.d/*
+echo -n "Writing .profile... "
+cp $root_dir/data/.profile $compile_dir/.profile
 chmod +x $compile_dir/.profile
 echo "done"
 
 # scan .profile.d so we can detect changes
-profiled_scan_new=$(ls -la $compile_dir/.profile.d/ 2>&1 || echo "empty")
+profiled_scan_new=$(scan_profiled)
 
-# if profile.d has not been written, let's generate one from bin/release
+# if profile.d has not been written, generate one from bin/release
 # to work around old buildpacks
 if [ "$profiled_scan_old" == "$profiled_scan_new" ]; then
   if [ -x $buildpack/bin/release ]; then
     echo -n "Writing .profile.d/buildpack.sh... "
     mkdir -p $compile_dir/.profile.d
-    $buildpack/bin/release $compile_dir | \
-      ruby -ryaml -e "
-        release = YAML.load(STDIN.read)  || {}
-        vars    = release['config_vars'] || {}
-
-        vars.each do |key, value|
-          if key == 'PATH'
-            # add HOME to relative PATHs
-            value = value.split(':').map do |part|
-              case part[0..0]
-                when '/' then part
-                else \"\$HOME/#{part}\"
-              end
-            end.join(':')
-
-            puts %{export #{key}=\"#{value}\"}
-          else
-            puts %{export #{key}=\${#{key}:-#{value}}}
-          end
-        end
-      " >> $compile_dir/.profile.d/buildpack.sh
+    $buildpack/bin/release $compile_dir | $root_dir/bin/profiled > $compile_dir/.profile.d/buildpack.sh
     echo "done"
   fi
 fi
+
+# merge default_process_types from bin/release into the Procfile
+$buildpack/bin/release $compile_dir | $root_dir/bin/procfile $compile_dir/Procfile
 
 # put cache
 if [ "$CACHE_URL" != "" ]; then

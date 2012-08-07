@@ -1,0 +1,30 @@
+#!/usr/bin/env ruby
+
+require "yaml"
+
+release  = YAML.load(STDIN.read) || {}
+procs    = release["default_process_types"] || {}
+procfile = ARGV.first
+
+# read existing procfile
+if File.exists?(procfile)
+  existing = File.read(procfile).split("\n").map do |line|
+    if line =~ /^([A-Za-z0-9_]+):\s*(.+)$/
+      [$1, $2]
+    end
+  end.compact
+else
+  existing = []
+end
+
+existing_names = existing.map(&:first)
+
+procs.each do |name, command|
+  existing << [name, command] unless existing_names.include?(name)
+end
+
+File.open(procfile, "w") do |file|
+  existing.each do |name, command|
+    file.puts "#{name}: #{command}"
+  end
+end

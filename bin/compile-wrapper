@@ -1,0 +1,14 @@
+#!/bin/sh
+
+on_exit() {
+  code=$?
+  exitcode=$(mktemp -t exitcode_XXXXX)
+  echo $code >> $exitcode
+  curl -s -T $exitcode "$EXIT_PUT_URL"
+}
+
+trap on_exit EXIT
+
+compile_dir=$(bin/fetch $1)
+bin/compile $compile_dir
+bin/stow $compile_dir

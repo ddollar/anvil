@@ -23,7 +23,7 @@ class Builder
           SLUG_PUT_URL:  slug_put_url
           SOURCE_URL:    source
         env[key] = val for key, val of JSON.parse(options.env || "{}")
-        builder  = @spawner.spawn("bin/compile $(bin/fetch $SOURCE_URL)", env:env)
+        builder  = @spawner.spawn("bin/compile-wrapper $SOURCE_URL", env:env)
         cb builder, this
         builder.emit "data", "Launching build process... "
 

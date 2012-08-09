@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# fail fast
+set -o errexit
+set -o pipefail
+
+compile_dir=$1
+
+# override built-in shell echo
+echo() {
+  /bin/echo "$1" "$2"
+}
+
+error() {
+  /bin/echo $*; exit 1
+}
+
+if [ "$compile_dir" == "" ]; then
+  error "Aborting compilation"
+fi
+
+if [ ! -d $compile_dir ]; then
+  error "Aborting compilation"
+fi
+
+# make slug
+if [ "$SLUG_PUT_URL" != "" ]; then
+  echo -n "Creating slug... "
+  slug=$(mktemp -t slug_XXXXX).tgz
+  cd $compile_dir
+  tar czf $slug .
+  cd - >/dev/null
+  echo "done"
+
+  echo -n "Uploading slug... "
+  curl -s -T $slug "$SLUG_PUT_URL"
+  echo "done"
+
+  echo "Success, slug is ${SLUG_URL}"
+else
+  echo "Success"
+fi

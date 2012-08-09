@@ -15,18 +15,9 @@ error() {
   /bin/echo $*; exit 1
 }
 
-on_exit() {
-  code=$?
-  exitcode=$(mktemp -t exitcode_XXXXX)
-  echo $code >> $exitcode
-  curl -s -T $exitcode "$EXIT_PUT_URL"
-}
-
 scan_profiled() {
   ls -la $compile_dir/.profile.d/ 2>&1 || echo "empty"
 }
-
-trap on_exit EXIT
 
 if [ "$compile_dir" == "" ]; then
   error "Aborting compilation"
@@ -168,21 +159,3 @@ fi
 
 # buildpack cleanup
 rm -rf $buildpack
-
-# make slug
-if [ "$SLUG_PUT_URL" != "" ]; then
-  echo -n "Creating slug... "
-  slug=$(mktemp -t slug_XXXXX).tgz
-  cd $compile_dir
-  tar czf $slug .
-  cd - >/dev/null
-  echo "done"
-
-  echo -n "Uploading slug... "
-  curl -s -T $slug "$SLUG_PUT_URL"
-  echo "done"
-
-  echo "Success, slug is ${SLUG_URL}"
-else
-  echo "Success"
-fi

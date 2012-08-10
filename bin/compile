@@ -15,6 +15,17 @@ error() {
   /bin/echo $*; exit 1
 }
 
+reformat() {
+  case $(uname) in
+    Darwin) sedargs="-le" ;;
+    *)      sedargs="-ue" ;;
+  esac
+
+  sed $sedargs 's/^ \!     /       ERROR: /g' | \
+  sed $sedargs 's/^----->/ /g'                | \
+  sed $sedargs 's/^      /   /g'
+}
+
 scan_profiled() {
   ls -la $compile_dir/.profile.d/ 2>&1 || echo "empty"
 }
@@ -109,10 +120,7 @@ profiled_scan_old=$(scan_profiled)
 echo "Compiling app..."
 cd $compile_dir
 
-$buildpack/bin/compile $compile_dir $cache_dir 2>&1 | \
-  sed -le 's/^ \!     /       ERROR: /g' | \
-  sed -le "s/^----->/ /g" | \
-  sed -le "s/^      /   /g"
+$buildpack/bin/compile $compile_dir $cache_dir 2>&1 | reformat
 
 # move existing .profile to .profile.d/app.sh
 if [ -f $compile_dir/.profile ]; then

@@ -12,7 +12,7 @@ class Builder
       @storage.generate_put_url "exit/#{@id}", (err, exit_put_url) =>
         env =
           ANVIL_HOST:    process.env.ANVIL_HOST
-          BUILDPACK_URL: @buildpack_with_default(options.buildpack)
+          BUILDPACK_URL: options.buildpack
           CACHE_URL:     @cache_with_default(options.cache)
           EXIT_PUT_URL:  exit_put_url
           NODE_ENV:      process.env.NODE_ENV
@@ -51,9 +51,6 @@ class Builder
       build.on "end", (success) ->
         logger.finish()
         res.end()
-
-  buildpack_with_default: (buildpack) ->
-    if (buildpack || "") is "" then "https://buildkits.herokuapp.com/buildkit/default.tgz" else buildpack
 
   cache_with_default: (cache) ->
     @cache_url = cache

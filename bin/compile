@@ -48,6 +48,7 @@ mkdir -p $cache_dir
 
 # fetch buildpack
 cd $compile_dir
+BUILDPACK_URL=${BUILDPACK_URL:-https://buildkits.herokuapp.com/buildkit/default.tgz}
 BUILDPACK_ANCHOR=${BUILDPACK_URL#*#}
 BUILDPACK_URL=${BUILDPACK_URL%%#*}
 if [ "$BUILDPACK_ANCHOR" == "$BUILDPACK_URL" ]; then

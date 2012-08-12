@@ -29,7 +29,7 @@ if [ "$source_anchor" == "$source_url" ]; then
 fi
 
 echo "done" >&2
-echo -n "Fetching app... " >&2
+echo -n "Preparing app for compilation... " >&2
 
 # fetching app
 case $source_url in

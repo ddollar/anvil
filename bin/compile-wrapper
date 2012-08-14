@@ -9,6 +9,8 @@ on_exit() {
 
 trap on_exit EXIT
 
+stty -icanon -echo
+
 compile_dir=$(bin/fetch $1)
 bin/compile $compile_dir
 bin/stow $compile_dir

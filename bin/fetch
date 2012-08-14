@@ -56,7 +56,7 @@ case $source_url in
     tar xzf $tarball
     cd - >/dev/null 2>&1
     ;;
-  *.tar.b2|*.tbz|*.tbz2)
+  *.tar.bz2|*.tbz|*.tbz2)
     tarball=$(mktemp -t tarball_XXXXX)
     curl -s $source_url -o $tarball
     cd $compile_dir >/dev/null 2>&1

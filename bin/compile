@@ -81,7 +81,7 @@ case $BUILDPACK_URL in
   *.sh)
     compile_script=$(mktemp -t compile_script_XXXXX)
     cp -r $root_dir/data/buildpack-custom/* $buildpack/
-    curl -s $BUILDPACK_URL -o $buildpack/bin/script
+    curl -L -s $BUILDPACK_URL -o $buildpack/bin/script
     chmod +x $buildpack/bin/script
     ;;
   *)

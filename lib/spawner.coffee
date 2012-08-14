@@ -55,6 +55,8 @@ class Spawner
       rendezvous.on "data", (data) -> emitter.emit("data", data) unless data.toString() is "rendezvous\r\n"
       rendezvous.on "end",         -> emitter.emit "end"
 
+      setInterval (-> rendezvous.write " "), 1000
+
     request.on "error", (error) ->
       emitter.emit "error", error
 

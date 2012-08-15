@@ -1,9 +1,12 @@
-#!/bin/sh
 #!/bin/bash
 
 # fail fast
 set -o errexit
 set -o pipefail
+
+echo() {
+  /bin/echo "$1" "$2"
+}
 
 on_exit() {
   code=$?

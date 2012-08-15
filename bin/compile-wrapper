@@ -1,4 +1,9 @@
 #!/bin/sh
+#!/bin/bash
+
+# fail fast
+set -o errexit
+set -o pipefail
 
 on_exit() {
   code=$?
@@ -9,7 +14,7 @@ on_exit() {
 
 trap on_exit EXIT
 
-stty -icanon -echo
+stty -icanon -echo 2>/dev/null || echo -n ""
 
 compile_dir=$(bin/fetch $1)
 bin/compile $compile_dir

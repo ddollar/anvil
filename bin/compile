@@ -94,15 +94,9 @@ echo "done"
 
 # get buildpack name
 echo -n "Detecting buildpack... "
-buildpack_name=$($buildpack/bin/detect "$compile_dir")
-
-# abort if detect failes
-if [ $? -eq 0 ]; then
-  echo "done, ${buildpack_name}"
-else
-  echo "failed"
-  exit 1
-fi
+buildpack_name=$($buildpack/bin/detect "$compile_dir") \
+  && echo "done, ${buildpack_name}" \
+  || error "failed"
 
 # fetch cache
 if [ "$CACHE_URL" != "" ]; then

@@ -144,7 +144,9 @@ if [ "$profiled_scan_old" == "$profiled_scan_new" ]; then
 fi
 
 # merge default_process_types from bin/release into the Procfile
-$buildpack/bin/release $compile_dir | $root_dir/bin/procfile $compile_dir/Procfile
+if [ -x $buildpack/bin/release ]; then
+    $buildpack/bin/release $compile_dir | $root_dir/bin/procfile $compile_dir/Procfile
+fi
 
 # put cache
 if [ "$CACHE_URL" != "" ]; then

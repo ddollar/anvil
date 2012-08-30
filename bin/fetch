@@ -63,6 +63,13 @@ case $source_url in
     tar xjf $tarball
     cd - >/dev/null 2>&1
     ;;
+  *.war)
+    war=$(mktemp -t war_XXXXX)
+    curl -s $source_url -o $war
+    cd $compile_dir >/dev/null 2>&1
+    jar xf $war
+    cd - >/dev/null 2>&1
+    ;;
   *)
     error "failed, unknown source type: $source_url"
     ;;

@@ -52,10 +52,17 @@ class Spawner
           rendezvous.write url.pathname.substring(1) + "\n"
         else
           console.log "invalid socket"
-      rendezvous.on "data", (data) -> emitter.emit("data", data) unless data.toString() is "rendezvous\r\n"
-      rendezvous.on "end",         -> emitter.emit "end"
 
-      setInterval (-> rendezvous.write " "), 1000
+      ping = setInterval (->
+        try
+          rendezvous.write " "
+        catch error
+          console.log "error writing to rendezvous"
+          clearInterval ping
+      ), 1000
+
+      rendezvous.on "data", (data) -> emitter.emit("data", data) unless data.toString() is "rendezvous\r\n"
+      rendezvous.on "end",         -> emitter.emit "end"; clearInterval ping
 
     request.on "error", (error) ->
       emitter.emit "error", error

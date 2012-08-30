@@ -9,6 +9,8 @@ program  = require("commander")
 url      = require("url")
 util     = require("util")
 
+http.globalAgent.maxSockets = 50
+
 program
   .version(require("#{__dirname}/../package.json").version)
   .usage('[options] <manifest> <target>')

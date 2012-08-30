@@ -8,6 +8,8 @@ manifest = require("manifest")
 storage  = require("storage").init()
 util     = require("util")
 
+require("http").globalAgent.maxSockets = 50
+
 express.logger.format "method", (req, res) ->
   req.method.toLowerCase()
 

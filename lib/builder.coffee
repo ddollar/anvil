@@ -32,6 +32,7 @@ class Builder
       buildpack: req.body.buildpack
       cache:     req.body.cache
       env:       req.body.env
+      keepalive: req.body.keepalive
     require("builder").init().build req.body.source, options, (build, builder) ->
       res.writeHead 200
         "Content-Type":      "text/plain"
@@ -39,6 +40,16 @@ class Builder
         "X-Cache-Url":       builder.cache_url
         "X-Manifest-Id":     builder.id
         "X-Slug-Url":        builder.slug_url()
+
+      if options.keepalive
+        ping = setInterval (->
+          try
+            res.write "\000\000\000"
+          catch error
+            console.log "error writing to socket"
+            clearInterval ping
+        ), 1000
+
       build.on "data", (data)   ->
         exit_header = "ANVIL!EXITCODE:"
         if (pos = data.toString().indexOf(exit_header)) > -1
@@ -49,6 +60,7 @@ class Builder
         else
           res.write(data)
       build.on "end", (success) ->
+        clearInterval ping if ping
         logger.finish()
         res.end()
 

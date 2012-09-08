@@ -19,7 +19,7 @@ env ANVIL_HOST=https://anvil-staging.herokuapp.com heroku build $git -r -a anvil
 env ANVIL_HOST=https://anvil-staging.herokuapp.com heroku build $git -r -a anvil-staging
 
 # staging is good, make one more new slug off of it
-slug=$(env ANVIL_HOST=https://anvil-staging.herokuapp.com heroku build $git -p)
+slug=$(env ANVIL_HOST=https://anvil-staging.herokuapp.com heroku build $git -p -a anvil-staging)
 
 # release to standard staging and production
 heroku release $slug -a anvil-staging

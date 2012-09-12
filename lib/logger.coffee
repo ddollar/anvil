@@ -5,7 +5,7 @@ class Logger
   constructor: (@subject, @options={}) ->
 
   write: (subject, options={}) ->
-    message = ("#{key}=\"#{val.toString().replace('"', '\\"')}\"" for key, val of coffee.helpers.merge(subject:subject, options))
+    message = ("#{key}=\"#{(val || "").toString().replace('"', '\\"')}\"" for key, val of coffee.helpers.merge(subject:subject, options))
     console.log message.join(" ")
 
   log: (opts={}, cb) ->

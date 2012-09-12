@@ -29,8 +29,14 @@ app.get "/", (req, res) ->
   res.send "ok"
 
 app.post "/build", (req, res) ->
-  log "api.build", type:"url", source:req.body.source, buildpack:req.body.buildpack, (logger) ->
-    builder.init().build_request req, res, logger
+  log "api.build"
+    type:      "url"
+    source:    req.body.source
+    buildpack: req.body.buildpack
+    app:       req.headers["x-heroku-app"]
+    user:      req.headers["x-heroku-user"]
+    (logger) ->
+      builder.init().build_request req, res, logger
 
 app.get "/cache/:id.tgz", (req, res) ->
   storage.get "/cache/#{req.params.id}.tgz", (err, get) ->
@@ -67,11 +73,16 @@ app.post "/manifest", (req, res) ->
     res.send "ok"
 
 app.post "/manifest/build", (req, res) ->
-  log "api.build", type:"manifest", (logger) ->
-    manifest.init(JSON.parse(req.body.manifest)).save (err, manifest_url) ->
-      delete req.body.manifest
-      req.body.source = manifest_url
-      builder.init().build_request req, res, logger
+  log "api.build"
+    type:      "manifest"
+    buildpack: req.body.buildpack
+    app:       req.headers["x-heroku-app"]
+    user:      req.headers["x-heroku-user"]
+    (logger) ->
+      manifest.init(JSON.parse(req.body.manifest)).save (err, manifest_url) ->
+        delete req.body.manifest
+        req.body.source = manifest_url
+        builder.init().build_request req, res, logger
 
 app.post "/manifest/diff", (req, res) ->
   manifest.init(JSON.parse(req.body.manifest)).missing_hashes (hashes) ->

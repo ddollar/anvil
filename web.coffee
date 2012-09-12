@@ -1,11 +1,11 @@
-builder  = require("builder")
+builder  = require("./lib/builder")
 coffee   = require("coffee-script")
 crypto   = require("crypto")
 express  = require("express")
 fs       = require("fs")
-log      = require("logger")
-manifest = require("manifest")
-storage  = require("storage").init()
+log      = require("./lib/logger")
+manifest = require("./lib/manifest")
+storage  = require("./lib/storage").init()
 util     = require("util")
 
 require("http").globalAgent.maxSockets = 50

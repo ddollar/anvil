@@ -28,6 +28,9 @@ app = express.createServer(
 app.get "/", (req, res) ->
   res.send "ok"
 
+app.get "/heartbeat", (req, res) ->
+  res.send "ok"
+
 app.post "/build", (req, res) ->
   log "api.build"
     type:      "url"

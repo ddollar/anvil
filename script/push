@@ -6,10 +6,6 @@ set -o pipefail
 
 git="https://github.com/ddollar/anvil.git"
 
-# save cloud and switch to the standard cloud
-cloud=$(heroku cloud)
-heroku cloud standard
-
 # release what is on github to anvil-staging
 env ANVIL_HOST=https://api.anvilworks.org heroku build $git -r -a anvil-staging
 
@@ -24,12 +20,3 @@ slug=$(env ANVIL_HOST=https://anvil-staging.herokuapp.com heroku build $git -p -
 # release to standard staging and production
 heroku release $slug -a anvil-staging
 heroku release $slug -a anvil-production
-
-# switch to shadow cloud
-heroku cloud shadow
-
-# release to shadow production
-heroku release $slug -a anvil-production
-
-# restore old cloud
-heroku cloud $cloud

@@ -24,7 +24,8 @@ datastore_hash_fetchers = (manifest, dir) ->
         mkdirp path.dirname(filename), =>
           fetch_url "#{process.env.ANVIL_HOST}/file/#{file_manifest["hash"]}", filename, (err) ->
             fs.chmod filename, file_manifest.mode, (err) ->
-              async_cb null, true
+              fs.utimes filename, file_manifest.mtime, file_manifest.mtime, (err) ->
+                async_cb null, true
 
 datastore_link_fetchers = (manifest, dir) ->
   fetchers = {}

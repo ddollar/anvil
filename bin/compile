@@ -60,12 +60,12 @@ rm -rf $buildpack; mkdir -p $buildpack;
 case $BUILDPACK_URL in
   *.json)
     buildpack_manifest=$(mktemp -t buildpack_manifest_XXXXX)
-    curl -s $BUILDPACK_URL -o $buildpack_manifest
+    curl -f -s $BUILDPACK_URL -o $buildpack_manifest
     $root_dir/bin/download_manifest $buildpack_manifest $buildpack >/dev/null 2>&1
     ;;
   *.tgz)
     cd $buildpack
-    curl -s $BUILDPACK_URL -o- | tar xzf -
+    curl -f -s $BUILDPACK_URL -o- | tar xzf -
     cd - >/dev/null 2>&1
     ;;
   *.git)
@@ -81,7 +81,7 @@ case $BUILDPACK_URL in
   *.sh|*.txt)
     compile_script=$(mktemp -t compile_script_XXXXX)
     cp -r $root_dir/data/buildpack-custom/* $buildpack/
-    curl -L -s $BUILDPACK_URL -o $buildpack/bin/script
+    curl -f -L -s $BUILDPACK_URL -o $buildpack/bin/script
     chmod +x $buildpack/bin/script
     ;;
   *)
@@ -102,7 +102,7 @@ buildpack_name=$($buildpack/bin/detect "$compile_dir") \
 if [ "$CACHE_URL" != "" ]; then
   echo -n "Fetching cache... "
   cache=$(mktemp -t cache_XXXXX)
-  curl -s $CACHE_URL -o $cache
+  curl -f -s $CACHE_URL -o $cache
   cd $cache_dir
   tar xzf $cache >/dev/null 2>&1 && echo "done" || echo "empty"
   cd .
@@ -154,7 +154,7 @@ if [ "$CACHE_URL" != "" ]; then
   cd $cache_dir
   tar czf $cache . >/dev/null 2>&1
   cd .
-  code=$(curl -s -X PUT $CACHE_URL -F data=@$cache --write-out %{http_code} --silent --output /dev/null)
+  code=$(curl -f -s -X PUT $CACHE_URL -F data=@$cache --write-out %{http_code} --silent --output /dev/null)
   if [ "$code" == "200" ]; then
     echo "done"
   else

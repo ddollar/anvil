@@ -35,7 +35,7 @@ echo -n "Preparing app for compilation... " >&2
 case $source_url in
   *.json)
     manifest=$(mktemp -t manifest_XXXXX)
-    curl -Ls $source_url -o $manifest
+    curl -f -Ls $source_url -o $manifest
     $root_dir/bin/download_manifest $manifest $compile_dir >/dev/null
     ;;
   *.git)
@@ -51,21 +51,21 @@ case $source_url in
     ;;
   *.tar.gz|*.tgz)
     tarball=$(mktemp -t tarball_XXXXX)
-    curl -Ls $source_url -o $tarball
+    curl -f -Ls $source_url -o $tarball
     cd $compile_dir >/dev/null 2>&1
     tar xzf $tarball
     cd - >/dev/null 2>&1
     ;;
   *.tar.bz2|*.tbz|*.tbz2)
     tarball=$(mktemp -t tarball_XXXXX)
-    curl -Ls $source_url -o $tarball
+    curl -f -Ls $source_url -o $tarball
     cd $compile_dir >/dev/null 2>&1
     tar xjf $tarball
     cd - >/dev/null 2>&1
     ;;
   *.war)
     war=$(mktemp -t war_XXXXX)
-    curl -Ls $source_url -o $war
+    curl -f -Ls $source_url -o $war
     cd $compile_dir >/dev/null 2>&1
     jar xf $war
     cd - >/dev/null 2>&1

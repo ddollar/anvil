@@ -33,7 +33,7 @@ if [ "$SLUG_PUT_URL" != "" ]; then
   echo "done"
 
   echo -n "Uploading slug... "
-  curl -s -T $slug "$SLUG_PUT_URL"
+  curl -f -s -T $slug "$SLUG_PUT_URL"
   echo "done"
 
   echo "Success, slug is ${SLUG_URL}"

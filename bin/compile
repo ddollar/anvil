@@ -123,12 +123,6 @@ if [ -f $compile_dir/.profile ]; then
   mv $compile_dir/.profile $compile_dir/.profile.d/app.sh
 fi
 
-# write a new .profile that reads .profile.d/*
-echo -n "Writing .profile... "
-cp $root_dir/data/.profile $compile_dir/.profile
-chmod +x $compile_dir/.profile
-echo "done"
-
 # scan .profile.d so we can detect changes
 profiled_scan_new=$(scan_profiled)
 

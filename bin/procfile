@@ -20,21 +20,18 @@ end
 existing_names = existing.map(&:first)
 
 procs.each do |name, command|
-
-  # skip silly processes
-  next if name == "rake"
-  next if name == "console"
-
-  # skip if already exists
-  next if existing_names.include?(name)
-
-  # add to the list
-  existing << [name, command]
-
+  existing << [name, command] unless existing_names.include?(name)
 end
 
 File.open(procfile, "w") do |file|
+
+  # skip unnecessary processes
+  next if name == "rake"
+  next if name == "console"
+
+  # write procs out to file
   existing.each do |name, command|
     file.puts "#{name}: #{command}"
   end
+
 end

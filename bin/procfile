@@ -25,12 +25,13 @@ end
 
 File.open(procfile, "w") do |file|
 
-  # skip unnecessary processes
-  next if name == "rake"
-  next if name == "console"
-
   # write procs out to file
   existing.each do |name, command|
+
+    # skip unnecessary processes
+    next if name == "rake"
+    next if name == "console"
+
     file.puts "#{name}: #{command}"
   end
 

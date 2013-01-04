@@ -1,2 +1,2 @@
-Depends: libsqlite3-dev
+Depends: coreutils
 Maintainer: David Dollar <david@heroku.com>

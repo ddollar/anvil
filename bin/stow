@@ -37,23 +37,31 @@ if [ "$SLUG_PUT_URL" != "" ]; then
       ;;
     deb)
       debroot=$(mktemp -t debroot_XXXXX)
+
       rm -rf $debroot
       mkdir -p -m 0755 $debroot
       mv $compile_dir $debroot/app
       mkdir -p -m 0755 $debroot/DEBIAN
+
       base=$(basename $SLUG_URL)
       name=${base%%.*}
       version=$(date +%s)
-      cat >$debroot/DEBIAN/control <<EOF
-Package: $name
-Version: $version
-Architecture: amd64
-Maintainer: Anvil Compiler <david@heroku.com>
-Description:
-  Anvil: ${ANVIL_HOST}
-  Source: ${SOURCE_URL}
-  Buildpack: ${BUILDPACK_URL}
-EOF
+
+      if [ -f $debroot/app/.control ]; then
+        cp $debroot/app/.control $debroot/DEBIAN/control
+      fi
+
+      default_control() {
+        file=$1; key=$2; value=$3
+        grep "^$key:" $file >/dev/null 2>&1 || echo "$key: $value" >> $file
+      }
+
+      default_control $debroot/DEBIAN/control "Package"      $name
+      default_control $debroot/DEBIAN/control "Version"      $version
+      default_control $debroot/DEBIAN/control "Architecture" "amd64"
+      default_control $debroot/DEBIAN/control "Maintainer"   "Anvil Compiler <david@heroku.com>"
+      default_control $debroot/DEBIAN/control "Description"  "Anvil:$ANVIL_HOST, Buildpack:$BUILDPACK_URL"
+
       fakeroot dpkg-deb --build $debroot . >/dev/null 2>&1
       mv ${name}_${version}_amd64.deb $slug
       ;;

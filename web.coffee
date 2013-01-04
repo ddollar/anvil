@@ -106,11 +106,15 @@ app.get "/slugs/:id.deb", (req, res) ->
 
 app.get "/slugs/:id.img", (req, res) ->
   storage.get "/slug/#{req.params.id}.img", (err, get) ->
+    res.writeHead get.statusCode,
+      "Content-Length": get.headers["content-length"]
     get.on "data", (chunk) -> res.write chunk
     get.on "end",          -> res.end()
 
 app.get "/slugs/:id.tgz", (req, res) ->
   storage.get "/slug/#{req.params.id}.tgz", (err, get) ->
+    res.writeHead get.statusCode,
+      "Content-Length": get.headers["content-length"]
     get.on "data", (chunk) -> res.write chunk
     get.on "end",          -> res.end()
 

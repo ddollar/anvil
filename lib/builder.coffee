@@ -8,7 +8,8 @@ class Builder
     @storage = require("storage").init()
 
   build: (source, options, cb) ->
-    @storage.generate_put_url "slug/#{@id}.tgz", (err, slug_put_url) =>
+    ext = if options.type is "deb" then "deb" else "tgz"
+    @storage.generate_put_url "slug/#{@id}.#{ext}", (err, slug_put_url) =>
       @storage.generate_put_url "exit/#{@id}", (err, exit_put_url) =>
         env =
           ANVIL_HOST:    process.env.ANVIL_HOST
@@ -19,8 +20,9 @@ class Builder
           NODE_PATH:     process.env.NODE_PATH
           PATH:          process.env.PATH
           SLUG_ID:       @id
-          SLUG_URL:      @slug_url()
+          SLUG_URL:      @slug_url(options.type)
           SLUG_PUT_URL:  slug_put_url
+          SLUG_TYPE:     ext
           SOURCE_URL:    source
         env[key] = val for key, val of JSON.parse(options.env || "{}")
         builder  = @spawner.spawn("bin/compile-wrapper $SOURCE_URL", env:env)
@@ -33,13 +35,14 @@ class Builder
       cache:     req.body.cache
       env:       req.body.env
       keepalive: req.body.keepalive
+      type:      req.body.type
     require("builder").init().build req.body.source, options, (build, builder) ->
       res.writeHead 200
         "Content-Type":      "text/plain"
         "Transfer-Encoding": "chunked"
         "X-Cache-Url":       builder.cache_url
         "X-Manifest-Id":     builder.id
-        "X-Slug-Url":        builder.slug_url()
+        "X-Slug-Url":        builder.slug_url(req.body.type)
 
       if options.keepalive
         ping = setInterval (->
@@ -69,8 +72,9 @@ class Builder
     if (cache || "") is "" then @cache_url = @storage.create_cache()
     @cache_url
 
-  slug_url: ->
-    "#{process.env.ANVIL_HOST}/slugs/#{@id}.tgz"
+  slug_url: (type) ->
+    ext = if type is "deb" then "deb" else "tgz"
+    "#{process.env.ANVIL_HOST}/slugs/#{@id}.#{ext}"
 
 module.exports.init = () ->
   new Builder()

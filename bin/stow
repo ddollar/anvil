@@ -25,11 +25,43 @@ fi
 
 # make slug
 if [ "$SLUG_PUT_URL" != "" ]; then
+
   echo -n "Creating slug... "
-  slug=$(mktemp -t slug_XXXXX).tgz
-  cd $compile_dir
-  tar czf $slug .
-  cd - >/dev/null
+  slug=$(mktemp -t slug_XXXXX)
+
+  case $SLUG_TYPE in
+    tgz)
+      cd $compile_dir
+      tar czf $slug .
+      cd - >/dev/null
+      ;;
+    deb)
+      debroot=$(mktemp -t debroot_XXXXX)
+      rm -rf $debroot
+      mkdir -p -m 0755 $debroot
+      mv $compile_dir $debroot/app
+      mkdir -p -m 0755 $debroot/DEBIAN
+      base=$(basename $SLUG_URL)
+      name=${base%%.*}
+      version=$(date +%s)
+      cat >$debroot/DEBIAN/control <<EOF
+Package: $name
+Version: $version
+Architecture: amd64
+Maintainer: Anvil Compiler <david@heroku.com>
+Description:
+  Anvil: ${ANVIL_HOST}
+  Source: ${SOURCE_URL}
+  Buildpack: ${BUILDPACK_URL}
+EOF
+      fakeroot dpkg-deb --build $debroot . >/dev/null 2>&1
+      mv ${name}_${version}_amd64.deb $slug
+      ;;
+    *)
+      error "Unknown SLUG_TYPE"
+      ;;
+  esac
+
   echo "done"
 
   echo -n "Uploading slug... "

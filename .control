@@ -1,0 +1,2 @@
+Depends: libsqlite3-dev
+Maintainer: David Dollar <david@heroku.com>

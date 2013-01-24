@@ -6,7 +6,7 @@ class Manifest
   constructor: (@manifest) ->
     @builder = require("builder").init()
     @storage = require("storage").init()
-    @id      = uuid.v1()
+    @id      = uuid.v4()
 
   hashes: ->
     object.hash for name, object of @manifest when object.hash

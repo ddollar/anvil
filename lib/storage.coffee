@@ -60,7 +60,7 @@ class Storage
     cb null, put_url
 
   create_cache: ->
-    id = uuid.v1()
+    id = uuid.v4()
     url = "#{process.env.ANVIL_HOST}/cache/#{id}.tgz"
 
 module.exports.init = () ->

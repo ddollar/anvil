@@ -3,7 +3,7 @@ uuid = require("node-uuid")
 class Builder
 
   constructor: () ->
-    @id      = uuid.v1()
+    @id      = uuid.v4()
     @spawner = require("spawner").init()
     @storage = require("storage").init()
 
@@ -47,7 +47,7 @@ class Builder
       if options.keepalive
         ping = setInterval (->
           try
-            res.write "\000\000\000"
+            res.write "\0\0\0"
           catch error
             console.log "error writing to socket"
             clearInterval ping

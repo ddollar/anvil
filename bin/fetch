@@ -70,6 +70,13 @@ case $source_url in
     jar xf $war
     cd - >/dev/null 2>&1
     ;;
+  *.squashfs|*/herokuslugs/*)
+    squashfs=$(mktemp -t squashfs_XXXXX)
+    curl -f -Ls $source_url -o $squashfs
+    cd $compile_dir >/dev/null 2>&1
+    unsquashfs -f -d $compile_dir $squashfs >/dev/null 2>&1
+    cd - >/dev/null 2>&1
+    ;;
   *)
     error "failed, unknown source type: $source_url"
     ;;

@@ -8,7 +8,7 @@ Generic build server
 
 ## Usage
 
-See the [client usage docs](https://github.com/ddollar/heroku-anvil#usage) for details.
+See the [client usage docs](https://github.com/ddollar/anvil-cli#anvil) for details.
 
 ## API
 

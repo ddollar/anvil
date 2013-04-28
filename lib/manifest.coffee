@@ -4,8 +4,8 @@ uuid    = require("node-uuid")
 class Manifest
 
   constructor: (@manifest) ->
-    @builder = require("builder").init()
-    @storage = require("storage").init()
+    @builder = require("./builder").init()
+    @storage = require("./storage").init()
     @id      = uuid.v4()
 
   hashes: ->

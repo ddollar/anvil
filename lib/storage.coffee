@@ -1,7 +1,9 @@
 crypto = require("crypto")
 fs     = require("fs")
 knox   = require("knox")
+log    = require("./logger")
 qs     = require("querystring")
+redis  = require("redis-url").connect(process.env.OPENREDIS_URL)
 uuid   = require("node-uuid")
 
 class Storage
@@ -16,16 +18,56 @@ class Storage
     @knox.getFile filename, (err, get) ->
       cb null, get
 
-  get_file: (filename, cb) ->
-    @get filename, (err, get) ->
-      data = ""
-      get.setEncoding "binary"
-      get.on "data", (chunk)   -> data += chunk
-      get.on "end",  (success) -> cb null, data
+  get_with_cache: (filename, cb) ->
+    log "storage.get", (logger) =>
+      redis.sismember "file:exists", filename, (err, exists) =>
+        if exists is 1
+          logger.log redis:"exists", (logger) ->
+            redis.get "file:#{filename}", (err, data) ->
+              emit = new (require("events").EventEmitter)()
+              emit.statusCode = 200
+              emit.headers = "content-length":(if data then data.length else 0)
+              cb null, emit
+              emit.emit "data", data
+              emit.emit "end"
+              logger.finish()
+        else
+          redis.multi()
+            .setnx("file:working:#{filename}", (new Date()).getTime() + 300000)
+            .expire("file:working:#{filename}", 300)
+            .exec (err, res) =>
+              if res[0] is 0
+                logger.log redis:"working", (logger) =>
+                  @knox.getFile filename, (err, get) ->
+                    get.setEncoding "binary"
+                    cb null, get
+                    logger.finish()
+              else
+                logger.log redis:"missing", (logger) =>
+                  redis.del "file:#{filename}", (err, res) =>
+                    @knox.getFile filename, (err, get) ->
+                      get.setEncoding "binary"
+                      get.on "data", (data) -> redis.append "file:#{filename}", data
+                      get.on "end", ->
+                        redis.multi()
+                          .expire("file:#{filename}", 7200)
+                          .del("file:working:#{filename}")
+                          .sadd("file:exists", filename)
+                          .exec (err, res) ->
+                      cb null, get
+                      logger.finish()
 
   exists: (filename, cb) ->
-    @knox.headFile filename, (err, res) ->
-      cb err, (res.statusCode != 404)
+    redis.sismember "exists", filename, (err, exists) =>
+      if exists is 1
+        cb err, true
+      else
+        @knox.headFile filename, (err, res) ->
+          if res.statusCode is 404
+            cb err, false
+          else
+            redis.sadd "exists", filename, (err, res) ->
+              cb err, true
 
   create: (filename, data, options, cb) ->
     put = @knox.put filename, options

@@ -25,4 +25,7 @@ class Logger
     @write @subject, coffee.helpers.merge(options, at:"finish", elapsed:elapsed)
 
 module.exports = (subject, options={}, cb=null) ->
+  if options instanceof Function
+    cb = options
+    options = {}
   new Logger(subject).log(options, cb)

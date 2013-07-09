@@ -3,9 +3,10 @@ uuid = require("node-uuid")
 class Builder
 
   constructor: () ->
-    @id      = uuid.v4()
-    @spawner = require("spawner").init()
-    @storage = require("storage").init()
+    @id         = uuid.v4()
+    @request_id = @id
+    @spawner    = require("spawner").init()
+    @storage    = require("storage").init()
 
   build: (source, options, cb) ->
     ext = if options.type is "deb" then "deb" else "tgz"
@@ -19,6 +20,7 @@ class Builder
           NODE_ENV:      process.env.NODE_ENV
           NODE_PATH:     process.env.NODE_PATH
           PATH:          process.env.PATH
+          REQUEST_ID:    @request_id
           SLUG_ID:       @id
           SLUG_URL:      @slug_url(options.type)
           SLUG_PUT_URL:  slug_put_url
@@ -40,6 +42,7 @@ class Builder
       res.writeHead 200
         "Content-Type":      "text/plain"
         "Transfer-Encoding": "chunked"
+        "Request-Id":        builder.request_id
         "X-Cache-Url":       builder.cache_url
         "X-Manifest-Id":     builder.id
         "X-Slug-Url":        builder.slug_url(req.body.type)

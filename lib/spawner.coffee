@@ -35,7 +35,7 @@ class Spawner
     data["ps_env[#{key}]"] = val for key, val of options.env # only add desired env
     data["attach"] = "true"
     data["command"] = command
-    data["size"] = 8
+    data["size"] = (process.env.DYNO_SIZE || "2")
 
     request = restler.post "https://#{host}/apps/#{app}/ps",
       headers:

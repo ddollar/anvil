@@ -1,3 +1,4 @@
 .anvil
 .env
 log
+node_modules

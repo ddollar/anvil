@@ -8,9 +8,10 @@ class Storage
 
   constructor: () ->
     @knox = knox.createClient
-      key:    process.env.AWS_ACCESS
-      secret: process.env.AWS_SECRET
-      bucket: process.env.S3_BUCKET
+      key:      process.env.AWS_ACCESS
+      secret:   process.env.AWS_SECRET
+      bucket:   process.env.S3_BUCKET
+      endpoint: process.env.S3_ENDPOINT
 
   get: (filename, cb) ->
     @knox.getFile filename, (err, get) ->

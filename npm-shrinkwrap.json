@@ -43,8 +43,42 @@
       }
     },
     "knox": {
-      "version": "0.0.9",
-      "from": "knox@0.0.9"
+      "version": "0.8.6",
+      "from": "knox@0.8.x",
+      "resolved": "https://registry.npmjs.org/knox/-/knox-0.8.6.tgz",
+      "dependencies": {
+        "mime": {
+          "version": "1.2.11",
+          "from": "mime@*"
+        },
+        "xml2js": {
+          "version": "0.2.8",
+          "from": "xml2js@0.2.x",
+          "resolved": "https://registry.npmjs.org/xml2js/-/xml2js-0.2.8.tgz",
+          "dependencies": {
+            "sax": {
+              "version": "0.5.5",
+              "from": "sax@0.5.x",
+              "resolved": "https://registry.npmjs.org/sax/-/sax-0.5.5.tgz"
+            }
+          }
+        },
+        "debug": {
+          "version": "0.7.2",
+          "from": "debug@~0.7.0"
+        },
+        "stream-counter": {
+          "version": "0.1.0",
+          "from": "stream-counter@~0.1.0",
+          "resolved": "https://registry.npmjs.org/stream-counter/-/stream-counter-0.1.0.tgz",
+          "dependencies": {
+            "readable-stream": {
+              "version": "1.0.17",
+              "from": "readable-stream@~1.0.2"
+            }
+          }
+        }
+      }
     },
     "mkdirp": {
       "version": "0.3.5",

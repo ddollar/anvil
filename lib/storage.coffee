@@ -12,6 +12,7 @@ class Storage
       secret:   process.env.AWS_SECRET
       bucket:   process.env.S3_BUCKET
       endpoint: process.env.S3_ENDPOINT
+      style:    "path"
 
   get: (filename, cb) ->
     @knox.getFile filename, (err, get) ->

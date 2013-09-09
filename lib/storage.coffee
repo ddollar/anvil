@@ -34,8 +34,8 @@ class Storage
     put.on "response", (res) -> cb null
     put.end data
 
-  create_stream: (filename, stream, cb) ->
-    @knox.putStream stream, filename, (err, res) ->
+  create_stream: (filename, headers, stream, cb) ->
+    @knox.putStream stream, filename, headers, (err, res) ->
       cb null
 
   verify_hash: (filename, hash, cb) ->

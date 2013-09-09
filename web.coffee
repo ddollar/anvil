@@ -47,7 +47,9 @@ app.get "/cache/:id.tgz", (req, res) ->
     get.on "end",          -> res.end()
 
 app.put "/cache/:id.tgz", (req, res) ->
-  storage.create_stream "/cache/#{req.params.id}.tgz", fs.createReadStream(req.files.data.path), (err) ->
+  headers =
+    "Content-Length": req.headers["content-length"]
+  storage.create_stream "/cache/#{req.params.id}.tgz", headers, fs.createReadStream(req.files.data.path), (err) ->
     res.send("ok")
 
 app.get "/exit/:id", (req, res) ->
@@ -67,7 +69,9 @@ app.post "/file/:hash", (req, res) ->
   log "api.file.post", hash:req.params.hash, (logger) ->
     storage.verify_hash req.files.data.path, req.params.hash, (err) ->
       return res.send(err, 403) if err
-      storage.create_stream "/hash/#{req.params.hash}", fs.createReadStream(req.files.data.path), (err) ->
+      headers =
+        "Content-Length": req.headers["content-length"]
+      storage.create_stream "/hash/#{req.params.hash}", headers, fs.createReadStream(req.files.data.path), (err) ->
         res.send "ok"
 
 app.post "/manifest", (req, res) ->

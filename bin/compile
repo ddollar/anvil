@@ -100,12 +100,14 @@ buildpack_name=$($buildpack/bin/detect "$compile_dir") \
 
 # fetch cache
 if [ "$CACHE_URL" != "" ]; then
-  echo -n "Fetching cache... "
-  cache=$(mktemp -t cache_XXXXX)
-  curl -f -s $CACHE_URL -o $cache
-  cd $cache_dir
-  tar xzf $cache >/dev/null 2>&1 && echo "done" || echo "empty"
-  cd .
+  if [ -d $cache_dir ]; then
+    echo -n "Fetching cache... "
+    cache=$(mktemp -t cache_XXXXX)
+    curl -f -s $CACHE_URL -o $cache
+    cd $cache_dir
+    tar xzf $cache >/dev/null 2>&1 && echo "done" || echo "empty"
+    cd .
+  fi
 fi
 
 # scan .profile.d so we can detect changes
@@ -144,15 +146,17 @@ fi
 
 # put cache
 if [ "$CACHE_URL" != "" ]; then
-  echo -n "Putting cache... "
-  cd $cache_dir
-  tar czf $cache . >/dev/null 2>&1
-  cd .
-  code=$(curl -f -s -X PUT $CACHE_URL -F data=@$cache --write-out %{http_code} --silent --output /dev/null)
-  if [ "$code" == "200" ]; then
-    echo "done"
-  else
-    echo "failed, got $code"
+  if [ -d $cache_dir ]; then
+    echo -n "Putting cache... "
+    cd $cache_dir
+    tar czf $cache . >/dev/null 2>&1
+    cd .
+    code=$(curl -f -s -X PUT $CACHE_URL -F data=@$cache --write-out %{http_code} --silent --output /dev/null)
+    if [ "$code" == "200" ]; then
+      echo "done"
+    else
+      echo "failed, got $code"
+    fi
   fi
 fi
 

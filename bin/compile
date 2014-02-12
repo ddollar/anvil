@@ -57,7 +57,15 @@ fi
 echo -n "Fetching buildpack... "
 buildpack=$(mktemp -t buildpack_XXXXX)
 rm -rf $buildpack; mkdir -p $buildpack;
+
 case $BUILDPACK_URL in
+  ./*.sh|./*.txt)
+    compile_script=$(mktemp -t compile_script_XXXXX)
+    cp -r $root_dir/data/buildpack-custom/* $buildpack/
+    cd $compile_dir
+    mv $BUILDPACK_URL $buildpack/bin/script
+    chmod +x $buildpack/bin/script
+    ;;
   *.json)
     buildpack_manifest=$(mktemp -t buildpack_manifest_XXXXX)
     curl -f -s $BUILDPACK_URL -o $buildpack_manifest

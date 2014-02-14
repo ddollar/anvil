@@ -69,10 +69,13 @@ app.post "/file/:hash", (req, res) ->
   log "api.file.post", hash:req.params.hash, (logger) ->
     storage.verify_hash req.files.data.path, req.params.hash, (err) ->
       return res.send(err, 403) if err
-      headers =
-        "Content-Length": req.headers["content-length"]
-      storage.create_stream "/hash/#{req.params.hash}", headers, fs.createReadStream(req.files.data.path), (err) ->
-        res.send "ok"
+
+      fs.stat req.files.data.path, (err, stats) ->
+        headers =
+          "Content-Length": stats.size
+
+        storage.create_stream "/hash/#{req.params.hash}", headers, fs.createReadStream(req.files.data.path), (err) ->
+          res.send "ok"
 
 app.post "/manifest", (req, res) ->
   manifest.init(JSON.parse(req.body.manifest)).save (err, manifest_url) ->

@@ -153,7 +153,7 @@ if [ "$CACHE_URL" != "" ]; then
     cd .
     code=$(curl -f -s -X PUT $CACHE_URL -F data=@$cache --write-out %{http_code} --silent --output /dev/null)
     if [ "$code" == "200" ]; then
-      echo "done"
+      echo "done. Cache is available at $CACHE_URL"
     else
       echo "failed, got $code"
     fi

@@ -48,7 +48,7 @@ class Storage
         cb "file does not match hash"
 
   generate_put_url: (filename, cb) ->
-    ttl = 3600
+    ttl = 18000
     expires = Math.floor((new Date).getTime() / 1000) + ttl
     bucket = process.env.S3_BUCKET
     string_to_sign = "PUT\n\n\n#{expires}\n/#{bucket}/#{filename}"

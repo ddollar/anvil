@@ -39,10 +39,10 @@ case $source_url in
     $root_dir/bin/download_manifest $manifest $compile_dir >/dev/null
     ;;
   *.git)
-    git clone "$source_url" "$compile_dir" --recursive >/dev/null 2>/dev/null
+    git clone "$source_url" "$compile_dir" --recursive --depth 1 >/dev/null 2>/dev/null || \
+      error "failed, could not clone $source_url"
     if [ "$source_anchor" != "" ]; then
       cd $compile_dir >/dev/null 2>&1
-      git remote update >/dev/null 2>&1
       git checkout "$source_anchor" >/dev/null 2>&1 || \
         error "failed, no such ref: $source_anchor"
       cd - >/dev/null 2>&1
